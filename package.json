@@ -1,0 +1,21 @@
+{
+  "name": "jagbot-node",
+  "version": "1.0.0",
+  "description": "Discord Bot Maker Backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Joseph Greene",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "config": "^3.3.6",
+    "discord.js": "^12.5.3",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.14",
+    "winston": "^3.3.3"
+  }
+}
