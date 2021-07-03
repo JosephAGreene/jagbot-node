@@ -15,12 +15,23 @@ function returnResponse (bot, message) {
     }
 
     // Determine if bot has scanModules
-    // scanModules are currently in testing. Not to be used in production.
+    // scanModules are ran in the order of the User's settings
+    // If a scanModule returns a response other than false, then that response is executed
+    // and all other modules (scan, command, or otherwise) are ignored. 
     if (bot.scanModules.length > 0) {
-        //response = inviteFilter(bot.scanModules[1], message);
-        if (!response) {
-            response = wordFilter(bot.scanModules[1], message);
-        }   
+        for (let i = 0; i < bot.scanModules.length; i++) {
+            switch (bot.scanModules[i].moduleType) {
+                case "invite-filter":
+                    response = inviteFilter(bot.scanModules[i], message);
+                    break;
+                case "word-filter":
+                    response = wordFilter(bot.scanModules[i], message);
+            }
+
+            if (response) {
+                break;
+            }
+        }  
     }
 
     // If a scanModule returned a response, then skip checking for any command modules

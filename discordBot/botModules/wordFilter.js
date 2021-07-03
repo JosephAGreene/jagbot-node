@@ -23,13 +23,13 @@ function wordFilter (selectedModule, message) {
         response = () => {
             if (selectedModule.deleteUserMessage) {
                 message.delete();
+                response = true;
             }
             if (selectedModule.warnUser) {
                 responseMessage = `Hey ${message.author}! ${selectedModule.warningResponse}`;
             }
             if (selectedModule.editUserMessage) {
                 let editedMessage = sanitizedMessage;
-                console.log(editedMessage);
                 let filteredWords = 0;
 
                 for (let i = 0; i < triggerWords.length; i++) {
@@ -52,13 +52,14 @@ function wordFilter (selectedModule, message) {
             }
             
             if (responseMessage) {
+                response = true;
                 message.channel.send(`${responseMessage}`);
             }
         }
     }
 
     return response;
-}
+}       
 
 //test change
 exports.wordFilter = wordFilter;

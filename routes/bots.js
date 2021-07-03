@@ -133,4 +133,34 @@ router.post("/invite-filter", async (req, res) => {
     res.send(bot);
 });
 
+// Reorders bots scanModule array bese on order of scanModule _id recieved in req.body.order array
+router.post("/scan-module-order", async (req, res) => {
+    const bot = await Bot.findById(req.body._id);
+    const newScanModuleOrder = req.body.order;
+    const originalScanModules = bot.scanModules;
+    
+    let newScanModules = [];
+
+    for (let i = 0; i < newScanModuleOrder.length; i++) {
+        let newModuleId = newScanModuleOrder[i];
+
+        for (let j = 0; j < originalScanModules.length; j++) {
+            if (newModuleId == originalScanModules[j]._id) {
+                newScanModules.push(originalScanModules[j]);
+                break;
+            }
+        }
+
+     }
+
+    bot.scanModules = newScanModules;
+
+    await bot.save();
+
+    killBot(bot.botId);
+    initiateBot(bot);
+
+    res.send(bot);
+});
+
 module.exports = router;
