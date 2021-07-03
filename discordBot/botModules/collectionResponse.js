@@ -1,4 +1,4 @@
-function customCollection (selectedModule, messageContent) {
+function collectionResponse (selectedModule, messageContent) {
     let response = null;
     
     //Determine collection keyword
@@ -15,4 +15,4 @@ function customCollection (selectedModule, messageContent) {
     return response;
 }
 
-exports.customCollection = customCollection;
+exports.collectionResponse = collectionResponse;

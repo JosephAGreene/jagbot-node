@@ -1,4 +1,4 @@
-function customRandom (selectedModule, messageContent) {
+function randomResponse (selectedModule, messageContent) {
     // Determine random number by using the length of the responses array
     let randomPosition = Math.floor(Math.random() * selectedModule.responses.length);
 
@@ -11,4 +11,4 @@ function customRandom (selectedModule, messageContent) {
     return response;
 }
 
-exports.customRandom = customRandom;
+exports.randomResponse = randomResponse;

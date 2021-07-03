@@ -1,6 +1,6 @@
-const {customSingle} = require("./botModules/customSingle");
-const {customCollection} = require("./botModules/customCollection");
-const {customRandom} = require("./botModules/customRandom");
+const {singleResponse} = require("./botModules/singleResponse");
+const {collectionResponse} = require("./botModules/collectionResponse");
+const {randomResponse} = require("./botModules/randomResponse");
 const {wordFilter} = require("./botModules/wordFilter");
 const {inviteFilter} = require("./botModules/inviteFilter");
 
@@ -52,22 +52,22 @@ function returnResponse (bot, message) {
 
     // Determine which module to execute 
     switch (selectedModule.moduleType) {
-        case "custom-single":
-            const singleResponse = customSingle(selectedModule);
-            if (singleResponse) {
-                response = () => message.channel.send(singleResponse);
+        case "single-response":
+            const single = singleResponse(selectedModule);
+            if (single) {
+                response = () => message.channel.send(single);
             }
             break;
-        case "custom-collection":
-            const collectionResponse = customCollection(selectedModule, message.content);
-            if (collectionResponse) {
-                response = () => message.channel.send(collectionResponse);
+        case "collection-response":
+            const collection = collectionResponse(selectedModule, message.content);
+            if (collection) {
+                response = () => message.channel.send(collection);
             }
             break;
-        case "custom-random": 
-            const randomResponse = customRandom(selectedModule, message.content);
-            if (randomResponse) {
-                response = () => message.channel.send(randomResponse);
+        case "random-response": 
+            const random = randomResponse(selectedModule, message.content);
+            if (random) {
+                response = () => message.channel.send(random);
             }
     }
 

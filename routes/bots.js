@@ -1,4 +1,9 @@
-const {Bot, CustomSingle, CustomCollection, CustomRandom, WordFilter, InviteFilter} = require("../models/bot");
+const {Bot} = require("../models/bot");
+const {SingleResponse} = require("../models/singleResponse");
+const {CollectionResponse} = require("../models/collectionResponse");
+const {RandomResponse} = require("../models/randomResponse");
+const {WordFilter} = require("../models/wordFilter");
+const {InviteFilter} = require("../models/inviteFilter");
 const express = require("express");
 const router = express.Router();
 const {initiateBot, killBot} = require("../discordBot/botClientUtils");
@@ -23,15 +28,15 @@ router.post("/init", async (req, res) => {
     res.send(bot);
 });
 
-router.post("/custom-single", async (req, res) => {
+router.post("/single-response", async (req, res) => {
     const bot = await Bot.findById(req.body._id);
 
-    const newCustomSingle = new CustomSingle({
+    const newSingleResponse = new SingleResponse({
         command: req.body.command,
         response: req.body.response
     }); 
 
-    bot.commandModules.push(newCustomSingle);
+    bot.commandModules.push(newSingleResponse);
 
     await bot.save();
 
@@ -41,7 +46,7 @@ router.post("/custom-single", async (req, res) => {
     res.send(bot);
 });
 
-router.post("/custom-collection", async (req, res) => {
+router.post("/collection-response", async (req, res) => {
     const bot = await Bot.findById(req.body._id);
 
     // build options array
@@ -53,12 +58,12 @@ router.post("/custom-collection", async (req, res) => {
         });
     });
 
-    const newCustomCollection = new CustomCollection({
+    const newCollectionResponse = new CollectionResponse({
         command: req.body.command,
         options: options
     }); 
 
-    bot.commandModules.push(newCustomCollection);
+    bot.commandModules.push(newCollectionResponse);
 
     await bot.save();
 
@@ -68,15 +73,15 @@ router.post("/custom-collection", async (req, res) => {
     res.send(bot);
 });
 
-router.post("/custom-random", async (req, res) => {
+router.post("/random-response", async (req, res) => {
     const bot = await Bot.findById(req.body._id);
 
-    const newCustomRandom = new CustomRandom({
+    const newRandomResponse = new RandomResponse({
         command: req.body.command,
         responses: req.body.responses
     }); 
 
-    bot.commandModules.push(newCustomRandom);
+    bot.commandModules.push(newRandomResponse);
 
     await bot.save();
 
