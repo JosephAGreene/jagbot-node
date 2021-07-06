@@ -4,6 +4,7 @@ const {CollectionResponse} = require("../models/collectionResponse");
 const {RandomResponse} = require("../models/randomResponse");
 const {WordFilter} = require("../models/wordFilter");
 const {InviteFilter} = require("../models/inviteFilter");
+const {SteamNews} = require("../models/steamNews");
 const express = require("express");
 const router = express.Router();
 const {initiateBot, killBot} = require("../discordBot/botClientUtils");
@@ -82,6 +83,23 @@ router.post("/random-response", async (req, res) => {
     }); 
 
     bot.commandModules.push(newRandomResponse);
+
+    await bot.save();
+
+    killBot(bot.botId);
+    initiateBot(bot);
+
+    res.send(bot);
+});
+
+router.post("/steam-news", async (req, res) => {
+    const bot = await Bot.findById(req.body._id);
+
+    const newSteamNews = new SteamNews({
+        command: req.body.command,
+    }); 
+
+    bot.commandModules.push(newSteamNews);
 
     await bot.save();
 
