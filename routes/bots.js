@@ -17,6 +17,7 @@ router.post("/init", auth, async (req, res) => {
   let bot = new Bot({
         botToken: req.body.botToken,
         botId: req.body.botId,
+        name: req.body.name,
         prefix: req.body.prefix
     });
   
