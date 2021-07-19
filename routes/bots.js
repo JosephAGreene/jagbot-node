@@ -1,32 +1,34 @@
-const {Bot} = require("../models/bot");
-const {SingleResponse} = require("../models/singleResponse");
-const {CollectionResponse} = require("../models/collectionResponse");
-const {RandomResponse} = require("../models/randomResponse");
-const {WordFilter} = require("../models/wordFilter");
-const {InviteFilter} = require("../models/inviteFilter");
-const {SteamNews} = require("../models/steamNews");
+const { Bot } = require("../models/bot");
+const { User } = require("../models/user");
+const { SingleResponse } = require("../models/singleResponse");
+const { CollectionResponse } = require("../models/collectionResponse");
+const { RandomResponse } = require("../models/randomResponse");
+const { WordFilter } = require("../models/wordFilter");
+const { InviteFilter } = require("../models/inviteFilter");
+const { SteamNews } = require("../models/steamNews");
 const express = require("express");
+const auth = require("../middleware/auth");
 const router = express.Router();
 const {initiateBot, killBot} = require("../discordBot/botClientUtils");
 
-router.get("/", async (req, res) => {
-    const bots = await Bot.find();
-
-    res.send(bots);
-});
-
-router.post("/init", async (req, res) => {
-    let bot = new Bot({
+router.post("/init", auth, async (req, res) => {
+  let user = await User.findById(req.user._id); 
+  
+  let bot = new Bot({
         botToken: req.body.botToken,
         botId: req.body.botId,
         prefix: req.body.prefix
     });
+  
+  bot = await bot.save();
 
-    bot = await bot.save();
+  user.bots.push(bot._id);
 
-    initiateBot(bot);
+  await user.save();
 
-    res.send(bot);
+  initiateBot(bot);
+
+  res.send(bot);
 });
 
 router.post("/single-response", async (req, res) => {

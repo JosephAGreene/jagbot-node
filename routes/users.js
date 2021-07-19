@@ -9,6 +9,14 @@ router.get("/me", auth, async (req, res) => {
   res.send(user);
 });
 
+// Return all bots that belong to user
+router.get("/bots", auth, async (req, res) => {
+  const user = await User.findById(req.user._id)
+  .populate('bots');
+
+  res.send(user.bots);
+});
+
 router.post("/", async (req, res) => {
   let user = await User.findOne({ email: req.body.email });
   if (user) return res.status(400).send("User already registered.");
