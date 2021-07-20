@@ -78,6 +78,33 @@ function killBot (botId) {
 	delete botClients[botId];
 }
 
+// Return avatar URL for Bot
+function returnAvatarUrl (botId) {
+  
+  // If bot is an active client, the avatar cannot be retrieved.
+  if (!returnStatus(botId)) {
+    return "";
+  }
+
+  const avatarId = botClients[botId].user.avatar;
+
+  if(!avatarId) {
+    return "";
+  }
+
+  return `https://cdn.discordapp.com/avatars/${botId}/${avatarId}.png`;
+}
+
+// Return bot status as an active client
+function returnStatus (botId) {
+  const status = botClients[botId];
+
+  if (status === undefined) { return false}
+  return true;
+}
+
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
 exports.killBot = killBot;
+exports.returnAvatarUrl = returnAvatarUrl;
+exports.returnStatus = returnStatus;

@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const { User } = require("../models/user");
 const express = require("express");
 const router = express.Router();
+const {returnAvatarUrl, returnStatus} = require("../discordBot/botClientUtils");
 
 router.get("/me", auth, async (req, res) => {
   const user = await User.findById(req.user._id).select("-password");
@@ -12,7 +13,16 @@ router.get("/me", auth, async (req, res) => {
 // Return all bots that belong to user
 router.get("/bots", auth, async (req, res) => {
   const user = await User.findById(req.user._id)
-  .populate('bots');
+  .populate('bots').lean();
+
+  user.bots.forEach((bot) => {
+    // Grabbing URLs for avatar images if possible
+    bot.avatar = returnAvatarUrl(bot.botId);
+
+    // Replacing status value from databse in favor of active
+    // status from the botClients object (i.e. The clients actually running atm)
+    bot.status = returnStatus(bot.botId); 
+  })
 
   res.send(user.bots);
 });
