@@ -1,46 +1,23 @@
-const config = require("config");
-const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  name: {
+  discordId: {
     type: String,
     required: true,
-    minlength: 2,
-    maxlength: 50
+    unique: true,
   },
-  email: {
+  discordTag: {
     type: String,
     required: true,
-    minlength: 5,
-    maxlength: 255,
-    unique: true
   },
-  password: {
+  avatarHash: {
     type: String,
-    required: true,
-    minlength: 5,
-    maxlength: 1024
   },
   bots: [{
     type: mongoose.Schema.Types.ObjectID,
     ref: 'Bot'
   }],
-  isAdmin: Boolean
 });
-
-userSchema.methods.generateAuthToken = function() {
-  const token = jwt.sign(
-    {
-      _id: this._id,
-      name: this.name,
-      email: this.email,
-      isAdmin: this.isAdmin
-    },
-    config.get("jwtPrivateKey")
-  );
-  return token;
-};
 
 const User = mongoose.model("User", userSchema);
 

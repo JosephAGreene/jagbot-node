@@ -1,15 +1,18 @@
-const winston = require("winston");
+require( 'dotenv' ).config();
+require( './strategies/discord');
+
 const express = require("express");
 const config = require("config");
 const app = express();
 
 require("./startup/logging")();
-require("./startup/routes")(app);
 require("./startup/db")();
+require("./startup/passport")(app);
+require("./startup/routes")(app);
+
 const {getSteamApps} = require("./startup/steamApps");
 getSteamApps();
 require("./startup/discordBot")();
-//require("./startup/config")();
 
 const port = process.env.PORT || config.get("port");
 const server = app.listen(port, () =>

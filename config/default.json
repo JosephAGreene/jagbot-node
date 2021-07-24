@@ -1,6 +1,5 @@
 {
-  "jwtPrivateKey": "unsecureKey",
+  "passportsecret": "secret",
   "db": "mongodb://localhost/jagbot",
-  "port": "3900",
-  "requiresAuth": true
+  "port": "3900"
 }

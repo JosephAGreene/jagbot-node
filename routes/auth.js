@@ -1,20 +1,39 @@
-const bcrypt = require('bcrypt');
-const {User} = require('../models/user');
-const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
+const { User } = require("../models/user");
+const {returnAvatarUrl, returnStatus} = require("../discordBot/botClientUtils");
 
-// Return current authorized & logged in user
-router.post('/signin', async (req, res) => {
-  let user = await User.findOne({ email: req.body.email });
-  if(!user) return res.status(400).send('Invalid email or password.');
 
-  const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if(!validPassword) return res.status(400).send('Invalid email or password.');
+router.get('/discord', passport.authenticate('discord'));
 
-  const token = user.generateAuthToken();
-  res.status(200).send({ accessToken: token });
-  //res.status(200).send(token);
+router.get('/discord/redirect', passport.authenticate('discord'), async (req, res) => {
+  res.redirect('http://localhost:3000/dashboard');
+});
+
+router.get('/', async (req, res) => {
+  if (req.user) {
+    const user = await User.findById(req.user._id, '-__v')
+    .populate('bots', '-botToken -__v').lean();
+  
+    user.bots.forEach((bot) => {
+      // Grabbing URLs for avatar images if possible
+      bot.avatar = returnAvatarUrl(bot.botId);
+  
+      // Replacing status value from databse in favor of active
+      // status from the botClients object (i.e. The clients actually running atm)
+      bot.status = returnStatus(bot.botId); 
+    })
+  
+    res.send(user);
+  } else {
+    res.sendStatus(401);
+  }
+});
+
+router.get('/logout', function(req, res){
+  req.logout();
+  res.sendStatus(200);
 });
 
 module.exports = router;

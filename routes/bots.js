@@ -7,11 +7,10 @@ const { WordFilter } = require("../models/wordFilter");
 const { InviteFilter } = require("../models/inviteFilter");
 const { SteamNews } = require("../models/steamNews");
 const express = require("express");
-const auth = require("../middleware/auth");
 const router = express.Router();
 const {initiateBot, killBot} = require("../discordBot/botClientUtils");
 
-router.post("/init", auth, async (req, res) => {
+router.post("/init", async (req, res) => {
   let user = await User.findById(req.user._id); 
   
   let bot = new Bot({
