@@ -14,17 +14,15 @@ router.get('/discord/redirect', passport.authenticate('discord'), async (req, re
 router.get('/', async (req, res) => {
   if (req.user) {
     const user = await User.findById(req.user._id, '-__v')
-    .populate('bots', '-botToken -__v').lean();
+    .populate('bots', '-botToken -__v');
   
-    user.bots.forEach((bot) => {
+    user.bots.forEach(async (bot) => {
       // Grabbing URLs for avatar images if possible
-      bot.avatar = returnAvatarUrl(bot.botId);
-  
-      // Replacing status value from databse in favor of active
-      // status from the botClients object (i.e. The clients actually running atm)
-      bot.status = returnStatus(bot.botId); 
+      bot.set('avatarURL', returnAvatarUrl(bot._id));
+      bot.set('status', returnStatus(bot._id)); 
+      await bot.save();
     })
-  
+    await user.save();
     res.send(user);
   } else {
     res.sendStatus(401);

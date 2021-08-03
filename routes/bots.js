@@ -8,15 +8,19 @@ const { InviteFilter } = require("../models/inviteFilter");
 const { SteamNews } = require("../models/steamNews");
 const express = require("express");
 const router = express.Router();
-const {initiateBot, killBot} = require("../discordBot/botClientUtils");
+const {initiateBot, getBotInfoFromDiscord} = require("../discordBot/botClientUtils");
 
 router.post("/init", async (req, res) => {
   let user = await User.findById(req.user._id); 
   
+  // get bot's application id from discord
+  const botInfo = await getBotInfoFromDiscord(req.body.botToken);
+
   let bot = new Bot({
+        owner: user,
         botToken: req.body.botToken,
-        botId: req.body.botId,
-        name: req.body.name,
+        botId: botInfo.id,
+        name: botInfo.name,
         prefix: req.body.prefix
     });
   
@@ -31,19 +35,39 @@ router.post("/init", async (req, res) => {
   res.send(bot);
 });
 
+router.delete("/command-module", async (req, res) => {
+  const bot = await Bot.findById(req.body.botId);
+
+  const newCommandModules = [];
+  for (let i=0; i < bot.commandModules.length; i++) {
+    if (bot.commandModules[i]._id != req.body.moduleId) {
+      newCommandModules.push(bot.commandModules[i]);
+    }
+  }
+
+  bot.commandModules = newCommandModules;
+
+  await bot.save();
+
+  initiateBot(bot);
+
+  res.send(bot);
+});
+
 router.post("/single-response", async (req, res) => {
     const bot = await Bot.findById(req.body._id);
 
     const newSingleResponse = new SingleResponse({
         command: req.body.command,
-        response: req.body.response
+        description: req.body.description,
+        responseLocation: req.body.responseLocation,
+        response: req.body.response,
     }); 
 
     bot.commandModules.push(newSingleResponse);
 
     await bot.save();
 
-    killBot(bot.botId);
     initiateBot(bot);
 
     res.send(bot);
@@ -70,7 +94,6 @@ router.post("/collection-response", async (req, res) => {
 
     await bot.save();
 
-    killBot(bot.botId);
     initiateBot(bot);
 
     res.send(bot);
@@ -88,7 +111,6 @@ router.post("/random-response", async (req, res) => {
 
     await bot.save();
 
-    killBot(bot.botId);
     initiateBot(bot);
 
     res.send(bot);
@@ -105,7 +127,6 @@ router.post("/steam-news", async (req, res) => {
 
     await bot.save();
 
-    killBot(bot.botId);
     initiateBot(bot);
 
     res.send(bot);
@@ -129,7 +150,6 @@ router.post("/word-filter", async (req, res) => {
 
     await bot.save();
 
-    killBot(bot.botId);
     initiateBot(bot);
 
     res.send(bot);
@@ -147,7 +167,6 @@ router.post("/invite-filter", async (req, res) => {
 
     await bot.save();
 
-    killBot(bot.botId);
     initiateBot(bot);
 
     res.send(bot);
@@ -177,7 +196,6 @@ router.post("/scan-module-order", async (req, res) => {
 
     await bot.save();
 
-    killBot(bot.botId);
     initiateBot(bot);
 
     res.send(bot);

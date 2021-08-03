@@ -16,14 +16,22 @@ const singleResponseSchema = new mongoose.Schema({
         type: String,
         default: "single-response",
     },
+    description: {
+      type: String,
+      trim: true,
+    },
     command: {
         type: String,
         trim: true,
         required: true,
     },
+    responseLocation: {
+      type: String,
+      trim: true,
+      default: "server",
+    },
     response: {
         type: String,
-        lowercase: true,
         trim: true,
         required: true,
     },
