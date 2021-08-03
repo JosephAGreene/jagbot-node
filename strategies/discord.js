@@ -24,11 +24,11 @@ passport.use(
     scope: ['identify'],
   }, async (accessToken, refreshToken, profile, done) => {
       const {id, username, discriminator, avatar} = profile;
-
+      const avatarURL = `https://cdn.discordapp.com/avatars/${id}/${avatar}.png`;
       try {
         const findUser = await User.findOneAndUpdate( {discordId: id}, {
           discordTag: `${username}#${discriminator}`,
-          avatarHash: avatar,
+          avatarURL: avatarURL,
         }, {useFindAndModify: false, new: true});
   
         if (findUser) {
@@ -39,7 +39,7 @@ passport.use(
           const newUser = await User.create({
             discordId: id,
             discordTag: `${username}#${discriminator}`,
-            avatarHash: avatar, 
+            avatarURL: avatarURL,
           });
           return done(null, newUser);
         }

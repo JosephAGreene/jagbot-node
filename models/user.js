@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  avatarHash: {
+  avatarURL: {
     type: String,
   },
   bots: [{
