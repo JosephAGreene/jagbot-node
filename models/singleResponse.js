@@ -12,7 +12,7 @@ const mongoose = require('mongoose');
 */
 
 const singleResponseSchema = new mongoose.Schema({
-    moduleType: {
+    type: {
         type: String,
         default: "single-response",
     },

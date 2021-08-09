@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 */
 
 const wordFilterSchema = new mongoose.Schema({
-    moduleType: {
+    type: {
         type: String,
         default: "word-filter",
     },

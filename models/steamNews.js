@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const steamNewsSchema = new mongoose.Schema({
-    moduleType: {
+    type: {
         type: String,
         default: "steam-news",
     },

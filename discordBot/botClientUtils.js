@@ -31,7 +31,7 @@ function initiateBot (bot) {
 		const command = require(`./commandModules/${file}`);
 		
 		for (i = 0; i < bot.commandModules.length; i++) {
-			if (command.type === bot.commandModules[i].moduleType) {
+			if (command.type === bot.commandModules[i].type) {
 				botClients[id].commands.set(bot.commandModules[i].command.toLowerCase() , command);
 			}
 		}
@@ -42,8 +42,8 @@ function initiateBot (bot) {
 		const scan = require(`./scanModules/${file}`);
 		
 		for (i = 0; i < bot.scanModules.length; i++) {
-			if (scan.type === bot.scanModules[i].moduleType) {
-				botClients[id].scans.set(bot.scanModules[i].moduleType, scan);
+			if (scan.type === bot.scanModules[i].type) {
+				botClients[id].scans.set(bot.scanModules[i].type, scan);
 			}
 		}
 	}
@@ -64,7 +64,7 @@ function initiateBot (bot) {
     // Attempt to execute all available scan modules on the incoming message.
     // If an scanModule returns true, that means it was executed and we can forgo any further action.
     for (i = 0; i < bot.scanModules.length; i++) {
-      const scanCheck = botClients[id].scans.get(bot.scanModules[i].moduleType).execute(message, bot.scanModules[i]);
+      const scanCheck = botClients[id].scans.get(bot.scanModules[i].type).execute(message, bot.scanModules[i]);
       if (scanCheck) return;
     }
 

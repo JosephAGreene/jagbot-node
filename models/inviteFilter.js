@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 */
 
 const inviteFilterSchema = new mongoose.Schema({
-    moduleType: {
+    type: {
         type: String,
         default: "invite-filter",
     },
