@@ -1,8 +1,5 @@
 const { Bot } = require("../models/bot");
 const { User } = require("../models/user");
-const { SingleResponse } = require("../models/singleResponse");
-const { CollectionResponse } = require("../models/collectionResponse");
-const { RandomResponse } = require("../models/randomResponse");
 const { WordFilter } = require("../models/wordFilter");
 const { InviteFilter } = require("../models/inviteFilter");
 const { SteamNews } = require("../models/steamNews");
@@ -35,86 +32,6 @@ router.post("/init", async (req, res) => {
   res.send(bot);
 });
 
-router.delete("/command-module", async (req, res) => {
-  const bot = await Bot.findById(req.body.botId);
-
-  const newCommandModules = [];
-  for (let i=0; i < bot.commandModules.length; i++) {
-    if (bot.commandModules[i]._id != req.body.moduleId) {
-      newCommandModules.push(bot.commandModules[i]);
-    }
-  }
-
-  bot.commandModules = newCommandModules;
-
-  await bot.save();
-
-  initiateBot(bot);
-
-  res.send(bot);
-});
-
-router.post("/single-response", async (req, res) => {
-    const bot = await Bot.findById(req.body._id);
-
-    const newSingleResponse = new SingleResponse({
-        command: req.body.command,
-        description: req.body.description,
-        responseLocation: req.body.responseLocation,
-        response: req.body.response,
-    }); 
-
-    bot.commandModules.push(newSingleResponse);
-
-    await bot.save();
-
-    initiateBot(bot);
-
-    res.send(bot);
-});
-
-router.post("/collection-response", async (req, res) => {
-    const bot = await Bot.findById(req.body._id);
-
-    // build options array
-    let options = [];
-    req.body.options.forEach(option => {
-        options.push({
-            keyword: option.keyword,
-            response: option.response
-        });
-    });
-
-    const newCollectionResponse = new CollectionResponse({
-        command: req.body.command,
-        options: options
-    }); 
-
-    bot.commandModules.push(newCollectionResponse);
-
-    await bot.save();
-
-    initiateBot(bot);
-
-    res.send(bot);
-});
-
-router.post("/random-response", async (req, res) => {
-    const bot = await Bot.findById(req.body._id);
-
-    const newRandomResponse = new RandomResponse({
-        command: req.body.command,
-        responses: req.body.responses
-    }); 
-
-    bot.commandModules.push(newRandomResponse);
-
-    await bot.save();
-
-    initiateBot(bot);
-
-    res.send(bot);
-});
 
 router.post("/steam-news", async (req, res) => {
     const bot = await Bot.findById(req.body._id);
