@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 /* 
-    Collection Response is a cammand module that contains an array of potential responses.
-    Command + Keyword = Response
+    Optioned Response is a cammand module that contains an array of potential responses.
+    Command + Option = Response
 
     An example use case for this module would be a dictionary feature.
     Ex: !define javascript 
@@ -10,10 +10,10 @@ const mongoose = require('mongoose');
     to create interactive applications running over the internet"
 */
 
-const collectionResponseSchema = new mongoose.Schema({
-    moduleType: {
+const optionedResponseSchema = new mongoose.Schema({
+    type: {
         type: String,
-        default: "collection-response",
+        default: "optioned-response",
     },
     command: {
         type: String,
@@ -38,5 +38,5 @@ const collectionResponseSchema = new mongoose.Schema({
     ],
 });
 
-const CollectionResponse = mongoose.model('CollectionResponse', collectionResponseSchema);
-exports.CollectionResponse = CollectionResponse;
+const OptionedResponse = mongoose.model('OptionedResponse', optionedResponseSchema);
+exports.OptionedResponse = OptionedResponse;
