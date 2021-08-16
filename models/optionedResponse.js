@@ -11,31 +11,39 @@ const mongoose = require('mongoose');
 */
 
 const optionedResponseSchema = new mongoose.Schema({
-    type: {
+  type: {
+    type: String,
+    default: "optioned-response",
+  },
+  command: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  description: {
+    type: String,
+    trime: true,
+    required: true,
+  },
+  options: [
+    {
+      _id: {
         type: String,
-        default: "optioned-response",
-    },
-    command: {
+        required: true,
+      },
+      keyword: {
         type: String,
         lowercase: true,
         trim: true,
         required: true,
-    },
-    options: [
-        {
-            keyword: {
-                type: String,
-                lowercase: true,
-                trim: true,
-                required: true,
-            },
-            response: {
-                type: String,
-                trim: true,
-                required: true,
-            }
-        }
-    ],
+      },
+      response: {
+        type: String,
+        trim: true,
+        required: true,
+      }
+    }
+  ],
 });
 
 const OptionedResponse = mongoose.model('OptionedResponse', optionedResponseSchema);

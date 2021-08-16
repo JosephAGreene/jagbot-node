@@ -3,6 +3,7 @@ const { SingleResponse } = require("../models/singleResponse");
 const { OptionedResponse } = require("../models/optionedResponse");
 const { RandomResponse } = require("../models/randomResponse");
 
+const mongoose = require('mongoose');
 const express = require("express");
 const router = express.Router();
 const {initiateBot} = require("../discordBot/botClientUtils");
@@ -80,11 +81,22 @@ router.put("/update-single-response", async (req, res) => {
 
 router.post("/optioned-response", async (req, res) => {
     const bot = await Bot.findById(req.body._id);
+    let commandExists = false;
+    bot.commandModules.forEach((module) => {
+      if(module.command === req.body.command) {
+        commandExists = true;
+      }
+    })
 
-    // build options array
+    if (commandExists) {
+      return res.status(409).send("duplicate command");
+    }
+
+    // Build options array
     let options = [];
     req.body.options.forEach(option => {
         options.push({
+            _id: new mongoose.Types.ObjectId(),
             keyword: option.keyword,
             response: option.response
         });
@@ -92,7 +104,8 @@ router.post("/optioned-response", async (req, res) => {
 
     const newOptionedResponse = new OptionedResponse({
         command: req.body.command,
-        options: options
+        description: req.body.description,
+        options: options,
     }); 
 
     bot.commandModules.push(newOptionedResponse);
@@ -102,6 +115,40 @@ router.post("/optioned-response", async (req, res) => {
     initiateBot(bot);
 
     res.send(bot);
+});
+
+router.put("/update-optioned-response", async (req, res) => {
+  const bot = await Bot.findById(req.body._id);
+
+  // Build options array
+  let options = [];
+  req.body.options.forEach(option => {
+      options.push({
+          _id: new mongoose.Types.ObjectId(),
+          keyword: option.keyword,
+          response: option.response
+      });
+  });
+
+  // Insert new optioned command values at location of moduleId
+  for (let i=0; i < bot.commandModules.length; i++) {
+    if (bot.commandModules[i]._id == req.body.moduleId) {
+      bot.commandModules.splice(i, 1, {
+        ...bot.commandModules[i],
+        command: req.body.command,
+        description: req.body.description,
+        responseLocation: req.body.responseLocation,
+        options: options,
+      });
+      break;
+    }
+  }
+
+  await bot.save();
+
+  initiateBot(bot);
+
+  res.send(bot);
 });
 
 router.post("/random-response", async (req, res) => {
