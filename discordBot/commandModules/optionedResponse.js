@@ -7,7 +7,7 @@ module.exports = {
     
         //Determine if options list for collection reply has correlated keyword
         for (let i = 0; i < botModule.options.length; i++) {
-            if (botModule.options[i].keyword === optionKeyword) {
+            if (botModule.options[i].keyword.toLowerCase() === optionKeyword.toLowerCase()) {
                 message.channel.send(botModule.options[i].response);
                 break;
             }
