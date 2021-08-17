@@ -10,22 +10,39 @@ const mongoose = require('mongoose');
 */
 
 const randomResponseSchema = new mongoose.Schema({
-    moduleType: {
+  type: {
+    type: String,
+    default: "random-response",
+  },
+  command: {
+    type: String,
+    lowercase: true,
+    trim: true,
+    required: true,
+  },
+  description: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  responseLocation: {
+    type: String,
+    trim: true,
+    default: "server",
+  },
+  responses: [
+    {
+      _id: {
         type: String,
-        default: "random-response",
-    },
-    command: {
+        required: true,
+      },
+      response: {
         type: String,
-        lowercase: true,
         trim: true,
         required: true,
-    },
-    responses : [
-        {
-            type: String,
-            trime: true
-        }
-    ]
+      }
+    }
+  ],
 });
 
 const RandomResponse = mongoose.model('RandomResponse', randomResponseSchema);

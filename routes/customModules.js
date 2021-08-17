@@ -6,13 +6,13 @@ const { RandomResponse } = require("../models/randomResponse");
 const mongoose = require('mongoose');
 const express = require("express");
 const router = express.Router();
-const {initiateBot} = require("../discordBot/botClientUtils");
+const { initiateBot } = require("../discordBot/botClientUtils");
 
 router.delete("/", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   const newCommandModules = [];
-  for (let i=0; i < bot.commandModules.length; i++) {
+  for (let i = 0; i < bot.commandModules.length; i++) {
     if (bot.commandModules[i]._id != req.body.moduleId) {
       newCommandModules.push(bot.commandModules[i]);
     }
@@ -28,38 +28,38 @@ router.delete("/", async (req, res) => {
 });
 
 router.post("/single-response", async (req, res) => {
-    const bot = await Bot.findById(req.body._id);
-    let commandExists = false;
-    bot.commandModules.forEach((module) => {
-      if(module.command === req.body.command) {
-        commandExists = true;
-      }
-    })
-
-    if (commandExists) {
-      return res.status(409).send("duplicate command");
+  const bot = await Bot.findById(req.body._id);
+  let commandExists = false;
+  bot.commandModules.forEach((module) => {
+    if (module.command === req.body.command) {
+      commandExists = true;
     }
+  })
 
-    const newSingleResponse = new SingleResponse({
-        command: req.body.command,
-        description: req.body.description,
-        responseLocation: req.body.responseLocation,
-        response: req.body.response,
-    }); 
+  if (commandExists) {
+    return res.status(409).send("duplicate command");
+  }
 
-    bot.commandModules.push(newSingleResponse);
+  const newSingleResponse = new SingleResponse({
+    command: req.body.command,
+    description: req.body.description,
+    responseLocation: req.body.responseLocation,
+    response: req.body.response,
+  });
 
-    await bot.save();
+  bot.commandModules.push(newSingleResponse);
 
-    initiateBot(bot);
+  await bot.save();
 
-    res.send(bot);
+  initiateBot(bot);
+
+  res.send(bot);
 });
 
 router.put("/update-single-response", async (req, res) => {
   const bot = await Bot.findById(req.body._id);
 
-  for (let i=0; i < bot.commandModules.length; i++) {
+  for (let i = 0; i < bot.commandModules.length; i++) {
     if (bot.commandModules[i]._id == req.body.moduleId) {
       bot.commandModules.splice(i, 1, {
         ...bot.commandModules[i],
@@ -80,41 +80,42 @@ router.put("/update-single-response", async (req, res) => {
 });
 
 router.post("/optioned-response", async (req, res) => {
-    const bot = await Bot.findById(req.body._id);
-    let commandExists = false;
-    bot.commandModules.forEach((module) => {
-      if(module.command === req.body.command) {
-        commandExists = true;
-      }
-    })
-
-    if (commandExists) {
-      return res.status(409).send("duplicate command");
+  const bot = await Bot.findById(req.body._id);
+  let commandExists = false;
+  bot.commandModules.forEach((module) => {
+    if (module.command === req.body.command) {
+      commandExists = true;
     }
+  })
 
-    // Build options array
-    let options = [];
-    req.body.options.forEach(option => {
-        options.push({
-            _id: new mongoose.Types.ObjectId(),
-            keyword: option.keyword,
-            response: option.response
-        });
+  if (commandExists) {
+    return res.status(409).send("duplicate command");
+  }
+
+  // Build options array
+  let options = [];
+  req.body.options.forEach(option => {
+    options.push({
+      _id: new mongoose.Types.ObjectId(),
+      keyword: option.keyword,
+      response: option.response,
     });
+  });
 
-    const newOptionedResponse = new OptionedResponse({
-        command: req.body.command,
-        description: req.body.description,
-        options: options,
-    }); 
+  const newOptionedResponse = new OptionedResponse({
+    command: req.body.command,
+    description: req.body.description,
+    responseLocation: req.body.responseLocation,
+    options: options,
+  });
 
-    bot.commandModules.push(newOptionedResponse);
+  bot.commandModules.push(newOptionedResponse);
 
-    await bot.save();
+  await bot.save();
 
-    initiateBot(bot);
+  initiateBot(bot);
 
-    res.send(bot);
+  res.send(bot);
 });
 
 router.put("/update-optioned-response", async (req, res) => {
@@ -123,15 +124,15 @@ router.put("/update-optioned-response", async (req, res) => {
   // Build options array
   let options = [];
   req.body.options.forEach(option => {
-      options.push({
-          _id: new mongoose.Types.ObjectId(),
-          keyword: option.keyword,
-          response: option.response
-      });
+    options.push({
+      _id: new mongoose.Types.ObjectId(),
+      keyword: option.keyword,
+      response: option.response,
+    });
   });
 
   // Insert new optioned command values at location of moduleId
-  for (let i=0; i < bot.commandModules.length; i++) {
+  for (let i = 0; i < bot.commandModules.length; i++) {
     if (bot.commandModules[i]._id == req.body.moduleId) {
       bot.commandModules.splice(i, 1, {
         ...bot.commandModules[i],
@@ -152,20 +153,74 @@ router.put("/update-optioned-response", async (req, res) => {
 });
 
 router.post("/random-response", async (req, res) => {
-    const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body._id);
+  let commandExists = false;
+  bot.commandModules.forEach((module) => {
+    if (module.command === req.body.command) {
+      commandExists = true;
+    }
+  })
 
-    const newRandomResponse = new RandomResponse({
+  if (commandExists) {
+    return res.status(409).send("duplicate command");
+  }
+
+  // Build responses array
+  let responses = [];
+  req.body.responses.forEach(response => {
+    responses.push({
+      _id: new mongoose.Types.ObjectId(),
+      response: response.response,
+    });
+  });
+
+  const newRandomResponse = new RandomResponse({
+    command: req.body.command,
+    description: req.body.description,
+    responseLocation: req.body.responseLocation,
+    responses: responses,
+  });
+
+  bot.commandModules.push(newRandomResponse);
+
+  await bot.save();
+
+  initiateBot(bot);
+
+  res.send(bot);
+});
+
+router.put("/update-random-response", async (req, res) => {
+  const bot = await Bot.findById(req.body._id);
+
+  // Build responses array
+  let responses = [];
+  req.body.responses.forEach(response => {
+    responses.push({
+      _id: new mongoose.Types.ObjectId(),
+      response: response.response,
+    });
+  });
+
+  // Insert new random command values at location of moduleId
+  for (let i = 0; i < bot.commandModules.length; i++) {
+    if (bot.commandModules[i]._id == req.body.moduleId) {
+      bot.commandModules.splice(i, 1, {
+        ...bot.commandModules[i],
         command: req.body.command,
-        responses: req.body.responses
-    }); 
+        description: req.body.description,
+        responseLocation: req.body.responseLocation,
+        responses: responses,
+      });
+      break;
+    }
+  }
 
-    bot.commandModules.push(newRandomResponse);
+  await bot.save();
 
-    await bot.save();
+  initiateBot(bot);
 
-    initiateBot(bot);
-
-    res.send(bot);
+  res.send(bot);
 });
 
 module.exports = router;
