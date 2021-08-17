@@ -22,8 +22,13 @@ const optionedResponseSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    trime: true,
+    trim: true,
     required: true,
+  },
+  responseLocation: {
+    type: String,
+    trim: true,
+    default: "server",
   },
   options: [
     {

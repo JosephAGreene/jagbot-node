@@ -12,29 +12,29 @@ const mongoose = require('mongoose');
 */
 
 const singleResponseSchema = new mongoose.Schema({
-    type: {
-        type: String,
-        default: "single-response",
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
-    command: {
-        type: String,
-        trim: true,
-        required: true,
-    },
-    responseLocation: {
-      type: String,
-      trim: true,
-      default: "server",
-    },
-    response: {
-        type: String,
-        trim: true,
-        required: true,
-    },
+  type: {
+    type: String,
+    default: "single-response",
+  },
+  command: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  description: {
+    type: String,
+    trim: true,
+  },
+  responseLocation: {
+    type: String,
+    trim: true,
+    default: "server",
+  },
+  response: {
+    type: String,
+    trim: true,
+    required: true,
+  },
 });
 
 const SingleResponse = mongoose.model('SingleResponse', singleResponseSchema);
