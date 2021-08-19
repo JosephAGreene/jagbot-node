@@ -1,0 +1,4 @@
+{
+  "db": "mongodb://localhost/jagbot-tests",
+  "port": "5000"
+}

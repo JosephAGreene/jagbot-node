@@ -4,7 +4,7 @@
   "description": "Discord Bot Maker Backend",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "jest --watchAll --verbose"
   },
   "author": "Joseph Greene",
   "license": "ISC",
@@ -22,5 +22,9 @@
     "passport": "^0.4.1",
     "passport-discord": "^0.1.4",
     "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "jest": "^27.0.6",
+    "supertest": "^6.1.6"
   }
 }
