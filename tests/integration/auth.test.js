@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { User } = require("../../models/user");
 
-describe('/api/auth WITHOUT User Credentials', () => {
+describe('/api/auth', () => {
   let server; 
   let userId;
 
@@ -46,6 +46,14 @@ describe('/api/auth WITHOUT User Credentials', () => {
       const res = await exec(true, true);
 
       expect(res.status).toBe(200);
+    });
+
+    it('should return bots array if proper credentials are provided', async () => {
+      const res = await exec(true, true);
+      console.log(typeof res.body.bots)
+
+      expect(res.body).toHaveProperty("bots");
+      expect(Array.isArray(res.body.bots)).toBe(true);
     });
   });
 });

@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
       await bot.save();
     })
     await user.save();
-    res.sendStatus(200).send(user);
+    res.send(user);
   } else {
     res.sendStatus(401);
   }

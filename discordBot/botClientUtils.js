@@ -107,7 +107,7 @@ async function getBotInfoFromDiscord (token) {
 // Return avatar URL for Bot
 function returnAvatarUrl (id) {
   
-  // If bot is an active client, the avatar cannot be retrieved.
+  // If bot is not an active client, the avatar cannot be retrieved.
   if (!returnStatus(id)) {
     return "";
   }
