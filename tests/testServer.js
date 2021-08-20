@@ -19,6 +19,8 @@ const injectUser = function (req, res, next) {
       : new mongoose.mongo.ObjectId())
     };
   }
+  // Remove inject values from req.body before proceeding
+  delete req.body.inject;
   next();
 };
 
