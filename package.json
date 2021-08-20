@@ -4,7 +4,8 @@
   "description": "Discord Bot Maker Backend",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll --verbose"
+    "start": "node index.js",
+    "test": "jest --watchAll --verbose --detectOpenHandles"
   },
   "author": "Joseph Greene",
   "license": "ISC",
