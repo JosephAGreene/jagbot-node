@@ -15,7 +15,11 @@ router.get('/', async (req, res) => {
   if (req.user) {
     const user = await User.findById(req.user._id, '-__v')
     .populate('bots', '-botToken -__v');
-  
+
+    if(!user) {
+      res.sendStatus(401);
+    }
+
     user.bots.forEach(async (bot) => {
       // Grabbing URLs for avatar images if possible
       bot.set('avatarURL', returnAvatarUrl(bot._id));
@@ -23,7 +27,7 @@ router.get('/', async (req, res) => {
       await bot.save();
     })
     await user.save();
-    res.send(user);
+    res.sendStatus(200).send(user);
   } else {
     res.sendStatus(401);
   }
