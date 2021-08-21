@@ -9,6 +9,7 @@ let botClients = {};
 // Initiate a single bot client
 // bot parameter is expected to be bot object from database
 function initiateBot (bot) {
+  if (!bot.active) return;
   const id = bot._id;
   const reInit = (botClients[id] ? true : false);
 
