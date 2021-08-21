@@ -1,5 +1,7 @@
+const auth = require("../middleware/auth");
+const validate = require("../middleware/validate");
 const { Bot } = require("../models/bot");
-const { SingleResponse } = require("../models/singleResponse");
+const { SingleResponse, validateSingle } = require("../models/singleResponse");
 const { OptionedResponse } = require("../models/optionedResponse");
 const { RandomResponse } = require("../models/randomResponse");
 
@@ -27,14 +29,23 @@ router.delete("/", async (req, res) => {
   res.send(bot);
 });
 
-router.post("/single-response", async (req, res) => {
+router.post("/single-response", [auth, validate(validateSingle)], async (req, res) => {
   const bot = await Bot.findById(req.body._id);
+
+  // If bot doesn't exist, return 404
+  if (!bot) return res.sendStatus(404);
+
+  // If bot doesn't belong to user, return 401
+  if (bot.owner != req.user._id) { 
+    return res.sendStatus(401);
+  }
+
   let commandExists = false;
   bot.commandModules.forEach((module) => {
     if (module.command === req.body.command) {
       commandExists = true;
     }
-  })
+  });
 
   if (commandExists) {
     return res.status(409).send("duplicate command");
