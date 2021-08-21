@@ -30,13 +30,16 @@ router.delete("/", async (req, res) => {
 });
 
 router.post("/single-response", [auth, validate(validateSingle)], async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
   if (!bot) return res.sendStatus(404);
 
+  console.log(bot.owner)
+  console.log(req.user._id)
   // If bot doesn't belong to user, return 401
-  if (bot.owner != req.user._id) { 
+  if (String(bot.owner) !== String(req.user._id)) { 
+    console.log('hit')
     return res.sendStatus(401);
   }
 
@@ -68,7 +71,7 @@ router.post("/single-response", [auth, validate(validateSingle)], async (req, re
 });
 
 router.put("/update-single-response", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body.botId);
 
   for (let i = 0; i < bot.commandModules.length; i++) {
     if (bot.commandModules[i]._id == req.body.moduleId) {
@@ -91,7 +94,7 @@ router.put("/update-single-response", async (req, res) => {
 });
 
 router.post("/optioned-response", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body.botId);
   let commandExists = false;
   bot.commandModules.forEach((module) => {
     if (module.command === req.body.command) {
@@ -130,7 +133,7 @@ router.post("/optioned-response", async (req, res) => {
 });
 
 router.put("/update-optioned-response", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body.botId);
 
   // Build options array
   let options = [];
@@ -164,7 +167,7 @@ router.put("/update-optioned-response", async (req, res) => {
 });
 
 router.post("/random-response", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body.botId);
   let commandExists = false;
   bot.commandModules.forEach((module) => {
     if (module.command === req.body.command) {
@@ -202,7 +205,7 @@ router.post("/random-response", async (req, res) => {
 });
 
 router.put("/update-random-response", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body.botId);
 
   // Build responses array
   let responses = [];

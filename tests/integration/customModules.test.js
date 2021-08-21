@@ -51,7 +51,7 @@ describe('/api/custom-modules', () => {
     botId = bot._id;
 
     payload = {
-      _id: botId,
+      botId: botId,
       command: "command",
       description: "description",
       responseLocation: "server",
@@ -92,7 +92,7 @@ describe('/api/custom-modules', () => {
     });
 
     it('should return 404 if the bot does not exist', async () => {
-      payload._id = new mongoose.mongo.ObjectId();
+      payload.botId = new mongoose.mongo.ObjectId();
 
       const res = await exec(true, false, payload);
 
@@ -108,7 +108,7 @@ describe('/api/custom-modules', () => {
     });
 
     it('should return 400 if bot id is not provided', async () => {
-      delete  payload._id;
+      delete  payload.botId;
 
       const res = await exec(true, true, payload);
 

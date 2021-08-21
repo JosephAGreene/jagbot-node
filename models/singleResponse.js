@@ -42,17 +42,18 @@ const SingleResponse = mongoose.model('SingleResponse', singleResponseSchema);
 
 function validateSingle(singleResponse) {
   const schema = Joi.object({
-    _id: Joi.string().trim().required()
+    botId: Joi.string().trim().required()
       .messages({
         "string.empty": 'Bot ID is required',
-        "string.max" : 'Bot ID cannot be greater than 30 characters',
         "any.required": 'Bot ID is required',
       }),
-    command: Joi.string().trim().max(30).required().custom((value, helper) => {
-        const wordCount = value.trim().split(' ').length;
+    command: Joi.string().trim().max(30).required()
+      .custom((value, helper) => {
+        const wordCount = value.slice(0).trim().split(' ').length;
         if (wordCount > 1) {
           return helper.message('Command must be a single word');
         }
+        return value;
       })
       .messages({
         "string.empty": 'Command is required',
