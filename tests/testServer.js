@@ -26,7 +26,7 @@ const injectUser = function (req, res, next) {
 
 require("../startup/logging")();
 require("../startup/db")();
-require("../startup/passport")(app);
+//require("../startup/passport")(app);
 
 app.use(express.json());
 app.use(injectUser);
