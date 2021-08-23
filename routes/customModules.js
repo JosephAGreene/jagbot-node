@@ -1,7 +1,7 @@
 const auth = require("../middleware/auth");
 const validate = require("../middleware/validate");
 const { Bot } = require("../models/bot");
-const { SingleResponse, validateSingle } = require("../models/singleResponse");
+const { SingleResponse, addSingle, updateSingle } = require("../models/singleResponse");
 const { OptionedResponse } = require("../models/optionedResponse");
 const { RandomResponse } = require("../models/randomResponse");
 
@@ -29,17 +29,14 @@ router.delete("/", async (req, res) => {
   res.send(bot);
 });
 
-router.post("/single-response", [auth, validate(validateSingle)], async (req, res) => {
+router.post("/single-response", [auth, validate(addSingle)], async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
   if (!bot) return res.sendStatus(404);
 
-  console.log(bot.owner)
-  console.log(req.user._id)
   // If bot doesn't belong to user, return 401
   if (String(bot.owner) !== String(req.user._id)) { 
-    console.log('hit')
     return res.sendStatus(401);
   }
 
@@ -70,20 +67,52 @@ router.post("/single-response", [auth, validate(validateSingle)], async (req, re
   res.send(bot);
 });
 
-router.put("/update-single-response", async (req, res) => {
+router.put("/update-single-response", [auth, validate(updateSingle)], async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
-  for (let i = 0; i < bot.commandModules.length; i++) {
+  // If bot doesn't exist, return 404
+  if (!bot) return res.sendStatus(404);
+
+  // If bot doesn't belong to user, return 401
+  if (String(bot.owner) !== String(req.user._id)) { 
+    return res.sendStatus(401);
+  }
+
+  // If module exists, set moduleLocation to the module's index number
+  let moduleLocation = -1;
+  for (let i =0; i < bot.commandModules.length; i++) {
     if (bot.commandModules[i]._id == req.body.moduleId) {
-      bot.commandModules.splice(i, 1, {
-        ...bot.commandModules[i],
-        command: req.body.command,
-        description: req.body.description,
-        responseLocation: req.body.responseLocation,
-        response: req.body.response,
-      });
+      moduleLocation = i;
       break;
     }
+  }
+
+  let commandExists = false;
+  bot.commandModules.forEach((module, index) => {
+    if (module.command === req.body.command) {
+      commandExists = index;
+    }
+  });
+  
+  // If duplicate command exists that ISN'T found the module
+  // being updatesd, then return 409
+  if (commandExists && commandExists !== moduleLocation) {
+    return res.status(409).send("duplicate command");
+  }
+
+  // If module doesn't exist, return 404
+  // Otherwise, update the existing module
+  if (moduleLocation < 0) {
+    return res.sendStatus(404);
+  } 
+  else {
+    bot.commandModules.splice(moduleLocation, 1, {
+      ...bot.commandModules[moduleLocation],
+      command: req.body.command,
+      description: req.body.description,
+      responseLocation: req.body.responseLocation,
+      response: req.body.response,
+    });
   }
 
   await bot.save();
