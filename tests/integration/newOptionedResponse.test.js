@@ -118,7 +118,7 @@ describe('/api/custom-modules', () => {
       expect(res.status).toBe(409);
     });
 
-    it('should return 400 if options arracy contains a duplicate keyword', async () => {
+    it('should return 400 if options array contains a duplicate keyword', async () => {
       const payload1 = {
         ...payload,
         options: [
@@ -331,10 +331,11 @@ describe('/api/custom-modules', () => {
       expect(res8.text).toBe("Response cannot be greater than 2000 characters");
     });
 
-    it('should return 200 if single-response addition is successful', async () => {
+    it('should return 200 if optioned-response addition is successful', async () => {
       const res = await exec(true, true, payload);
 
-      expect(res.status).toBe(200);      
+      expect(res.status).toBe(200);
+      expect(res.body.commandModules.length).toBe(2); // Ensure that commandModules grew by 1      
     });
   });
 });
