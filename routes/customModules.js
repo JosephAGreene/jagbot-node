@@ -2,7 +2,7 @@ const auth = require("../middleware/auth");
 const validate = require("../middleware/validate");
 const { Bot } = require("../models/bot");
 const { SingleResponse, addSingle, updateSingle } = require("../models/singleResponse");
-const { OptionedResponse } = require("../models/optionedResponse");
+const { OptionedResponse, addOptioned } = require("../models/optionedResponse");
 const { RandomResponse } = require("../models/randomResponse");
 
 const mongoose = require('mongoose');
@@ -122,8 +122,17 @@ router.put("/update-single-response", [auth, validate(updateSingle)], async (req
   res.send(bot);
 });
 
-router.post("/optioned-response", async (req, res) => {
+router.post("/optioned-response", [auth, validate(addOptioned)], async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
+
+  // If bot doesn't exist, return 404
+  if (!bot) return res.sendStatus(404);
+
+  // If bot doesn't belong to user, return 401
+  if (String(bot.owner) !== String(req.user._id)) { 
+    return res.sendStatus(401);
+  }
+
   let commandExists = false;
   bot.commandModules.forEach((module) => {
     if (module.command === req.body.command) {
@@ -133,6 +142,16 @@ router.post("/optioned-response", async (req, res) => {
 
   if (commandExists) {
     return res.status(409).send("duplicate command");
+  }
+
+  // if options array contains duplicate keywords, return 400
+  const keywords = [];
+  req.body.options.forEach((option) => {
+    keywords.push(option.keyword.toLowerCase());
+  });
+  const noDuplicates = new Set(keywords);
+  if(keywords.length !== noDuplicates.size) {
+    return res.status(400).send("No duplicate keywords allowed");
   }
 
   // Build options array
