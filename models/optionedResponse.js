@@ -54,137 +54,81 @@ const optionedResponseSchema = new mongoose.Schema({
 
 const OptionedResponse = mongoose.model('OptionedResponse', optionedResponseSchema);
 
-function addOptioned(body) {
-  const schema = Joi.object({
-    botId: Joi.string().trim().required()
-      .messages({
-        "string.empty": 'Bot ID is required',
-        "any.required": 'Bot ID is required',
-      }),
-    command: Joi.string().trim().max(30).required()
-      .custom((value, helper) => {
-        const wordCount = value.slice(0).trim().split(' ').length;
-        if (wordCount > 1) {
-          return helper.message('Command must be a single word');
-        }
-        return value;
+const baseSchema = Joi.object({
+  botId: Joi.string().trim().required()
+    .messages({
+      "string.empty": 'Bot ID is required',
+      "any.required": 'Bot ID is required',
+    }),
+  command: Joi.string().trim().max(30).required()
+    .custom((value, helper) => {
+      const wordCount = value.slice(0).trim().split(' ').length;
+      if (wordCount > 1) {
+        return helper.message('Command must be a single word');
+      }
+      return value;
+    })
+    .messages({
+      "string.empty": 'Command is required',
+      "string.max" : 'Command cannot be greater than 30 characters',
+      "any.required": 'Command is required',
+    }),
+  description: Joi.string().trim().max(250).required()
+    .messages({
+      "string.empty": 'Description is required',
+      "string.max" : 'Description cannot be greater than 250 characters',
+      "any.required": 'Description is required',
+    }),
+  responseLocation: Joi.string().trim().valid('server','directmessage').required()
+    .messages({
+      "string.empty": 'Response Location is required',
+      "any.only": 'Response Location must be either "server" or "directmessage"',
+      "any.required": 'Response Location is required',
+    }),
+  options: Joi.array().min(1).required().items(
+      Joi.object({
+          _id: Joi.string().optional(),
+          keyword: Joi.string().trim().max(30).required()
+            .custom((value, helper) => {
+              const wordCount = value.slice(0).trim().split(' ').length;
+              if (wordCount > 1) {
+                return helper.message('Keyword must be a single word');
+              }
+              return value;
+            })
+            .messages({
+              "string.empty": 'Keyword is required',
+              "string.max" : 'Keyword cannot be greater than 30 characters',
+              "any.required": 'Keyword is required',
+            }),
+          response: Joi.string().trim().max(2000).required()
+            .messages({
+              "string.empty": 'Response is required',
+              "string.max" : 'Response cannot be greater than 2000 characters',
+              "any.required": 'Response is required',
+            }),
       })
-      .messages({
-        "string.empty": 'Command is required',
-        "string.max" : 'Command cannot be greater than 30 characters',
-        "any.required": 'Command is required',
-      }),
-    description: Joi.string().trim().max(250).required()
-      .messages({
-        "string.empty": 'Description is required',
-        "string.max" : 'Description cannot be greater than 250 characters',
-        "any.required": 'Description is required',
-      }),
-    responseLocation: Joi.string().trim().valid('server','directmessage').required()
-      .messages({
-        "string.empty": 'Response Location is required',
-        "any.only": 'Response Location must be either "server" or "directmessage"',
-        "any.required": 'Response Location is required',
-      }),
-    options: Joi.array().min(1).required().items(
-        Joi.object({
-            keyword: Joi.string().trim().max(30).required()
-              .custom((value, helper) => {
-                const wordCount = value.slice(0).trim().split(' ').length;
-                if (wordCount > 1) {
-                  return helper.message('Keyword must be a single word');
-                }
-                return value;
-              })
-              .messages({
-                "string.empty": 'Keyword is required',
-                "string.max" : 'Keyword cannot be greater than 30 characters',
-                "any.required": 'Keyword is required',
-              }),
-            response: Joi.string().trim().max(2000).required()
-              .messages({
-                "string.empty": 'Response is required',
-                "string.max" : 'Response cannot be greater than 2000 characters',
-                "any.required": 'Response is required',
-              }),
-        })
-      )
-      .messages({
-        "array.min": `At least one optioned response is required`,
-        "array.base": 'Options property must be an array',
-        "any.required": `At least one optioned response is required`,
-      }),
-  });
-  return schema.validate(body);
+    )
+    .messages({
+      "array.min": `At least one optioned response is required`,
+      "array.base": 'Options property must be an array',
+      "any.required": `At least one optioned response is required`,
+    }),
+});
+
+function addOptioned(body) {
+  return baseSchema.validate(body);
 }
 
 function updateOptioned(body) {
-  const schema = Joi.object({
-    botId: Joi.string().trim().required()
-      .messages({
-        "string.empty": 'Bot ID is required',
-        "any.required": 'Bot ID is required',
-      }),
+  const updateSchema = baseSchema.keys({
     moduleId: Joi.string().trim().required()
       .messages({
         "string.empty": 'Bot ID is required',
         "any.required": 'Bot ID is required',
       }),
-    command: Joi.string().trim().max(30).required()
-      .custom((value, helper) => {
-        const wordCount = value.slice(0).trim().split(' ').length;
-        if (wordCount > 1) {
-          return helper.message('Command must be a single word');
-        }
-        return value;
-      })
-      .messages({
-        "string.empty": 'Command is required',
-        "string.max" : 'Command cannot be greater than 30 characters',
-        "any.required": 'Command is required',
-      }),
-    description: Joi.string().trim().max(250).required()
-      .messages({
-        "string.empty": 'Description is required',
-        "string.max" : 'Description cannot be greater than 250 characters',
-        "any.required": 'Description is required',
-      }),
-    responseLocation: Joi.string().trim().valid('server','directmessage').required()
-      .messages({
-        "string.empty": 'Response Location is required',
-        "any.only": 'Response Location must be either "server" or "directmessage"',
-        "any.required": 'Response Location is required',
-      }),
-    options: Joi.array().min(1).required().items(
-        Joi.object({
-            keyword: Joi.string().trim().max(30).required()
-              .custom((value, helper) => {
-                const wordCount = value.slice(0).trim().split(' ').length;
-                if (wordCount > 1) {
-                  return helper.message('Keyword must be a single word');
-                }
-                return value;
-              })
-              .messages({
-                "string.empty": 'Keyword is required',
-                "string.max" : 'Keyword cannot be greater than 30 characters',
-                "any.required": 'Keyword is required',
-              }),
-            response: Joi.string().trim().max(2000).required()
-              .messages({
-                "string.empty": 'Response is required',
-                "string.max" : 'Response cannot be greater than 2000 characters',
-                "any.required": 'Response is required',
-              }),
-        })
-      )
-      .messages({
-        "array.min": `At least one optioned response is required`,
-        "array.base": 'Options property must be an array',
-        "any.required": `At least one optioned response is required`,
-      }),
   });
-  return schema.validate(body);
+  return updateSchema.validate(body);
 }
 
 exports.OptionedResponse = OptionedResponse;
