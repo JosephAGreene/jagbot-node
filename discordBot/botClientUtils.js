@@ -136,3 +136,10 @@ exports.initiateBot = initiateBot;
 exports.getBotInfoFromDiscord = getBotInfoFromDiscord;
 exports.returnAvatarUrl = returnAvatarUrl;
 exports.returnStatus = returnStatus;
+
+// Testing Function For Role Return
+// botClients[id].guilds.cache.forEach((guild) => {
+//   guild.roles.cache.forEach((role) => {
+//     console.log(role.name);
+//   })
+// });
