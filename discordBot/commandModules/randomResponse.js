@@ -12,12 +12,11 @@ module.exports = {
       // then respond with it. 
       if (botModule.responses[randomPosition]) {
         const response = await messageParser(message, botModule.responses[randomPosition].response);
-        message.channel.send(response);
+        message.channel.send(response.toString());
       }
     }
     catch (err) {
       message.channel.send(err.message);
     }
-
   },
 };

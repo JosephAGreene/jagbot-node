@@ -14,7 +14,7 @@ function initiateBot (bot) {
   const reInit = (botClients[id] ? true : false);
 
   if (!reInit) {
-    botClients[id] = new Discord.Client();
+    botClients[id] = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES] });
     botClients[id].commands = new Discord.Collection();
     botClients[id].scans = new Discord.Collection();
     botClients[id].botId = bot.botId;
@@ -87,7 +87,7 @@ function initiateBot (bot) {
     }
   }
 	
-  botClients[id].on('message', message);
+  botClients[id].on('messageCreate', message);
 }
 
 async function getBotInfoFromDiscord (token) {

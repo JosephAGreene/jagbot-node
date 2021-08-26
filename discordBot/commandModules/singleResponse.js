@@ -7,7 +7,7 @@ module.exports = {
     
     try {
       const response = await messageParser(message, botModule.response);
-      message.channel.send(response);
+      message.channel.send(response.toString());
     } catch (err) {
       message.channel.send(err.message);
     }

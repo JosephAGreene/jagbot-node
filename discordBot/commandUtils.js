@@ -1,6 +1,6 @@
 // Returns the name actually displayed in the server for the user
 async function getAuthorDisplayName (msg) {
-  const member = await msg.guild.member(msg.author);
+  const member = await msg.guild.members.fetch(msg.author);
   return member.nickname ? member.nickname : msg.author.username;
 }
 
