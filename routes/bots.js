@@ -2,6 +2,7 @@ const { Bot } = require("../models/bot");
 const { User } = require("../models/user");
 const { WordFilter } = require("../models/wordFilter");
 const { InviteFilter } = require("../models/inviteFilter");
+const { MassCapsFilter } = require("../models/massCapsFilter");
 const { SteamNews } = require("../models/steamNews");
 const express = require("express");
 const router = express.Router();
@@ -87,6 +88,23 @@ router.post("/invite-filter", async (req, res) => {
     initiateBot(bot);
 
     res.send(bot);
+});
+
+router.post("/masscaps-filter", async (req, res) => {
+  const bot = await Bot.findById(req.body._id);
+
+  const newMassCapsFilter = new MassCapsFilter({
+      deleteMessage: req.body.deleteMessage,
+      response: req.body.response,
+  }); 
+
+  bot.scanModules.push(newMassCapsFilter);
+
+  await bot.save();
+
+  initiateBot(bot);
+
+  res.send(bot);
 });
 
 // Reorders bots scanModule array bese on order of scanModule _id recieved in req.body.order array
