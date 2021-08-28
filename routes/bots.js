@@ -3,6 +3,7 @@ const { User } = require("../models/user");
 const { WordFilter } = require("../models/wordFilter");
 const { InviteFilter } = require("../models/inviteFilter");
 const { MassCapsFilter } = require("../models/massCapsFilter");
+const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { SteamNews } = require("../models/steamNews");
 const express = require("express");
 const router = express.Router();
@@ -99,6 +100,24 @@ router.post("/masscaps-filter", async (req, res) => {
   }); 
 
   bot.scanModules.push(newMassCapsFilter);
+
+  await bot.save();
+
+  initiateBot(bot);
+
+  res.send(bot);
+});
+
+router.post("/massmentions-filter", async (req, res) => {
+  const bot = await Bot.findById(req.body._id);
+
+  const newMassMentionsFilter = new MassMentionsFilter({
+      limit: req.body.number,
+      deleteMessage: req.body.deleteMessage,
+      response: req.body.response,
+  }); 
+
+  bot.scanModules.push(newMassMentionsFilter);
 
   await bot.save();
 
