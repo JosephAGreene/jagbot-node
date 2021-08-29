@@ -7,18 +7,22 @@ const mongoose = require('mongoose');
 */
 
 const massCapsFilterSchema = new mongoose.Schema({
-    type: {
-        type: String,
-        default: "masscaps-filter",
-    },
-    deleteMessage : {
-        type: Boolean,
-        default: false
-    },
-    response : {
-        type: String,
-        trim: true
-    }
+  type: {
+    type: String,
+    default: "masscaps-filter",
+  },
+  enabled: {
+    type: Boolean,
+    default: false,
+  },
+  delete: {
+    type: Boolean,
+    default: false,
+  },
+  response: {
+    type: String,
+    trim: true
+  }
 });
 
 const MassCapsFilter = mongoose.model('MassCapsFilter', massCapsFilterSchema);

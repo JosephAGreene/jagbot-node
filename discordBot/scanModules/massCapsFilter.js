@@ -1,14 +1,14 @@
 module.exports = {
 	type: 'masscaps-filter',
 	execute(message, botModule) {
-    if (message.content.length < 20) return;
-    
     let scanCheck = false;
-    const limit = message.content.length * .7;
+
+    if (message.content.length < 20) return scanCheck;
+
     const count = message.content.replace(/[^A-Z]/g, "").length;
 
-    if (count > limit) {
-      if (botModule.deleteMessage) {
+    if (count > botModule.limit) {
+      if (botModule.delete) {
           scanCheck = true;
           message.delete();
       }

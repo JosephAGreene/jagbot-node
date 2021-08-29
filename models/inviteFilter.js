@@ -6,18 +6,22 @@ const mongoose = require('mongoose');
 */
 
 const inviteFilterSchema = new mongoose.Schema({
-    type: {
-        type: String,
-        default: "invite-filter",
-    },
-    deleteLink : {
-        type: Boolean,
-        default: false
-    },
-    response : {
-        type: String,
-        trim: true
-    }
+  type: {
+    type: String,
+    default: "invite-filter",
+  },
+  enabled: {
+    type: Boolean,
+    default: false,
+  },
+  delete: {
+    type: Boolean,
+    default: false,
+  },
+  response: {
+    type: String,
+    trim: true
+  }
 });
 
 const InviteFilter = mongoose.model('InviteFilter', inviteFilterSchema);

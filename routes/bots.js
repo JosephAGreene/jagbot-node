@@ -80,6 +80,7 @@ router.post("/invite-filter", async (req, res) => {
     const newInviteFilter = new InviteFilter({
         deleteLink: req.body.deleteLink,
         response: req.body.response,
+        location: req.body.location,
     }); 
 
     bot.scanModules.push(newInviteFilter);
@@ -95,8 +96,10 @@ router.post("/masscaps-filter", async (req, res) => {
   const bot = await Bot.findById(req.body._id);
 
   const newMassCapsFilter = new MassCapsFilter({
-      deleteMessage: req.body.deleteMessage,
+      enabled: req.body.enabled,
+      delete: req.body.delete,
       response: req.body.response,
+      location: req.body.location,
   }); 
 
   bot.scanModules.push(newMassCapsFilter);
@@ -112,9 +115,11 @@ router.post("/massmentions-filter", async (req, res) => {
   const bot = await Bot.findById(req.body._id);
 
   const newMassMentionsFilter = new MassMentionsFilter({
-      limit: req.body.number,
-      deleteMessage: req.body.deleteMessage,
+      enabled: req.body.enabled,
+      limit: req.body.limit,
+      delete: req.body.delete,
       response: req.body.response,
+      location: req.body.location,
   }); 
 
   bot.scanModules.push(newMassMentionsFilter);

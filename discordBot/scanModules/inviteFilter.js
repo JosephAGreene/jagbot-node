@@ -3,7 +3,7 @@ module.exports = {
 	execute(message, botModule) {
         let scanCheck = false;
         if (message.content.includes('discord.gg/' || 'discordapp.com/invite')) { 
-            if (botModule.deleteLink) {
+            if (botModule.delete) {
                 scanCheck = true;
                 message.delete();
             }

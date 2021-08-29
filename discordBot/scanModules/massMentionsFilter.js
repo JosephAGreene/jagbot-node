@@ -12,7 +12,7 @@ module.exports = {
     const mentionsCount = everyone + members + roles;
 
     if (mentionsCount > limit) {
-      if (botModule.deleteMessage) {
+      if (botModule.delete) {
           scanCheck = true;
           message.delete();
       }

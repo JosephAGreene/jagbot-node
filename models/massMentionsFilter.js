@@ -7,22 +7,26 @@ const mongoose = require('mongoose');
 */
 
 const massMentionsFilterSchema = new mongoose.Schema({
-    type: {
-        type: String,
-        default: "massmentions-filter",
-    },
-    limit: {
-      type: Number,
-      default: 5,
-    },
-    deleteMessage : {
-        type: Boolean,
-        default: false,
-    },
-    response : {
-        type: String,
-        trim: true,
-    }
+  type: {
+    type: String,
+    default: "massmentions-filter",
+  },
+  enabled: {
+    type: Boolean,
+    default: false,
+  },
+  limit: {
+    type: Number,
+    default: 5,
+  },
+  delete: {
+    type: Boolean,
+    default: false,
+  },
+  response: {
+    type: String,
+    trim: true
+  }
 });
 
 const MassMentionsFilter = mongoose.model('MassMentionsFilter', massMentionsFilterSchema);

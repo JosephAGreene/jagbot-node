@@ -25,7 +25,6 @@ function initiateBot (bot) {
     botClients[id].commands.clear();
     botClients[id].scans.clear();
   }
-	
  
 	// Add list of commands to botClient that correspond to available command modules from bot
 	for (const file of commandFiles) {
