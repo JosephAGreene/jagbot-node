@@ -6,15 +6,23 @@ const scanFiles = fs.readdirSync("discordBot/scanModules").filter(file => file.e
 // botClients is an object that houses our discord clients
 let botClients = {};
 
+// Array of necessary Discord Intents  
+const baseIntents = [ 
+  Discord.Intents.FLAGS.GUILDS, 
+  Discord.Intents.FLAGS.GUILD_MESSAGES,
+  Discord.Intents.FLAGS.GUILD_PRESENCES,
+  Discord.Intents.FLAGS.GUILD_MEMBERS,
+];
+
 // Initiate a single bot client
 // bot parameter is expected to be bot object from database
-function initiateBot (bot) {
+async function initiateBot (bot) {
   if (!bot.active) return;
   const id = bot._id;
   const reInit = (botClients[id] ? true : false);
 
   if (!reInit) {
-    botClients[id] = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES] });
+    botClients[id] = new Discord.Client({ intents: baseIntents });
     botClients[id].commands = new Discord.Collection();
     botClients[id].scans = new Discord.Collection();
     botClients[id].botId = bot.botId;
@@ -49,7 +57,12 @@ function initiateBot (bot) {
 	}
 
   if (!reInit) {
-    botClients[id].login(bot.botToken);
+    try {
+      await botClients[id].login(bot.botToken);
+    } catch (err) {
+      console.log(`${botClients[id].botId} encountered an error. ${err.name}` )
+    }
+    
   
     botClients[id].once('ready', () => {
       console.log(`Ready: ${botClients[id].botId}`);
@@ -90,13 +103,7 @@ function initiateBot (bot) {
 }
 
 async function verifyBotWithDiscord (token) {
-  const bot = new Discord.Client({ intents: 
-    [ Discord.Intents.FLAGS.GUILDS, 
-      Discord.Intents.FLAGS.GUILD_MESSAGES,
-      Discord.Intents.FLAGS.GUILD_PRESENCES,
-      Discord.Intents.FLAGS.GUILD_MEMBERS,
-    ]
-  });
+  const bot = new Discord.Client({ intents: baseIntents});
   
   try {
     await bot.login(token);
