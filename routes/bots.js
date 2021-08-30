@@ -7,20 +7,30 @@ const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { SteamNews } = require("../models/steamNews");
 const express = require("express");
 const router = express.Router();
-const {initiateBot, getBotInfoFromDiscord} = require("../discordBot/botClientUtils");
+const {initiateBot, verifyBotWithDiscord} = require("../discordBot/botClientUtils");
 
-router.post("/init", async (req, res) => {
-  let user = await User.findById(req.user._id); 
+router.post("/new", async (req, res) => {
+  let user = await User.findById(req.body.user); 
   
-  // get bot's application id from discord
-  const botInfo = await getBotInfoFromDiscord(req.body.botToken);
+  // Verify bot's information with Discord
+  const botInfo = await verifyBotWithDiscord(req.body.botToken);
+
+  // If an error property exists, then something went wrong with the 
+  // bot verification with discord. Possible issues of interest include
+  // an invalid bot token or bot tokens with improper intent settings. 
+  if (botInfo.error) { return res.status(409).send(botInfo.error) };
 
   let bot = new Bot({
         owner: user,
         botToken: req.body.botToken,
         botId: botInfo.id,
         name: botInfo.name,
-        prefix: req.body.prefix
+        prefix: req.body.prefix,
+        scanModules: [
+          new InviteFilter(),
+          new MassCapsFilter(),
+          new MassMentionsFilter(),
+        ]
     });
   
   bot = await bot.save();

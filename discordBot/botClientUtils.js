@@ -89,12 +89,25 @@ function initiateBot (bot) {
   botClients[id].on('messageCreate', message);
 }
 
-async function getBotInfoFromDiscord (token) {
-  const bot = new Discord.Client();
-  await bot.login(token);
-  bot.on('ready', () => {});
+async function verifyBotWithDiscord (token) {
+  const bot = new Discord.Client({ intents: 
+    [ Discord.Intents.FLAGS.GUILDS, 
+      Discord.Intents.FLAGS.GUILD_MESSAGES,
+      Discord.Intents.FLAGS.GUILD_PRESENCES,
+      Discord.Intents.FLAGS.GUILD_MEMBERS,
+    ]
+  });
+  
+  try {
+    await bot.login(token);
+  }
+  catch (err) {
+    bot.destroy();
+    return {"error": err.name};
+  }
 
   const info = {
+    "error": false,
     "id" : bot.user.id,
     "name" : bot.user.username,
   }
@@ -132,7 +145,7 @@ function returnStatus (id) {
 
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
-exports.getBotInfoFromDiscord = getBotInfoFromDiscord;
+exports.verifyBotWithDiscord = verifyBotWithDiscord;
 exports.returnAvatarUrl = returnAvatarUrl;
 exports.returnStatus = returnStatus;
 
