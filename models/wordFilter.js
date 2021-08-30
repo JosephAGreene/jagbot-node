@@ -6,42 +6,33 @@ const mongoose = require('mongoose');
 */
 
 const wordFilterSchema = new mongoose.Schema({
-    type: {
-        type: String,
-        default: "word-filter",
-    },
-    triggerWords: [
-        {
-            type: String,
-            trim: true,
-        }
-    ],
-    deleteUserMessage : {
-        type: Boolean,
-        default: false
-    },
-    warnUser : {
-        type: Boolean,
-        default: false
-    },
-    warningResponse : {
-        type: String,
-        trim: true, 
-        default: "Naughty words will not be tolerated."
-    },
-    editUserMessage : {
-        type: Boolean,
-        default: false
-    },
-    spamLimit : {
-        type: Number,
-        default: 5,
-    }, 
-    spamResponse : {
-        type: String,
-        trim: true,
-        default: "Spamming naughty words will not be tolerated."
+  type: {
+    type: String,
+    default: "word-filter",
+  },
+  enabled: {
+    type: Boolean,
+    default: false,
+  },
+  triggerWords: [
+    {
+      type: String,
+      trim: true,
     }
+  ],
+  delete: {
+    type: Boolean,
+    default: false,
+  },
+  response: {
+    type: String,
+    trim: true
+  }, 
+  location: {
+    type: String,
+    trim: true,
+    default: "server"
+  }
 });
 
 const WordFilter = mongoose.model('WordFilter', wordFilterSchema);

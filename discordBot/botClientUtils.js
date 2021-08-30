@@ -7,8 +7,8 @@ const scanFiles = fs.readdirSync("discordBot/scanModules").filter(file => file.e
 let botClients = {};
 
 // Array of necessary Discord Intents  
-const baseIntents = [ 
-  Discord.Intents.FLAGS.GUILDS, 
+const baseIntents = [
+  Discord.Intents.FLAGS.GUILDS,
   Discord.Intents.FLAGS.GUILD_MESSAGES,
   Discord.Intents.FLAGS.GUILD_PRESENCES,
   Discord.Intents.FLAGS.GUILD_MEMBERS,
@@ -16,7 +16,7 @@ const baseIntents = [
 
 // Initiate a single bot client
 // bot parameter is expected to be bot object from database
-async function initiateBot (bot) {
+async function initiateBot(bot) {
   if (!bot.active) return;
   const id = bot._id;
   const reInit = (botClients[id] ? true : false);
@@ -25,71 +25,98 @@ async function initiateBot (bot) {
     botClients[id] = new Discord.Client({ intents: baseIntents });
     botClients[id].commands = new Discord.Collection();
     botClients[id].scans = new Discord.Collection();
+    botClients[id].scanModules = [];
     botClients[id].botId = bot.botId;
-  } 
+  }
   else {
     // If bot is already active, then clear it's client listeners and values
     delete botClients[id]._events;
     botClients[id].commands.clear();
     botClients[id].scans.clear();
+    botClients[id].scanModules = [];
   }
- 
-	// Add list of commands to botClient that correspond to available command modules from bot
-	for (const file of commandFiles) {
-		const command = require(`./commandModules/${file}`);
-		
-		for (i = 0; i < bot.commandModules.length; i++) {
-			if (command.type === bot.commandModules[i].type) {
-				botClients[id].commands.set(bot.commandModules[i].command.toLowerCase() , command);
-			}
-		}
-	}
 
-	// Add list of scans to botClient that correspond to available scan modules from bot
-	for (const file of scanFiles) {
-		const scan = require(`./scanModules/${file}`);
-		
-		for (i = 0; i < bot.scanModules.length; i++) {
-			if (scan.type === bot.scanModules[i].type) {
-				botClients[id].scans.set(bot.scanModules[i].type, scan);
-			}
-		}
-	}
+  // Add list of commands to botClient that correspond to available command modules from bot
+  for (const file of commandFiles) {
+    const command = require(`./commandModules/${file}`);
+
+    for (i = 0; i < bot.commandModules.length; i++) {
+      if (command.type === bot.commandModules[i].type) {
+        botClients[id].commands.set(bot.commandModules[i].command.toLowerCase(), command);
+      }
+    }
+  }
+
+  // Add list of scans to botClient that correspond to available scan modules from bot 
+  for (const file of scanFiles) {
+    const scan = require(`./scanModules/${file}`);
+
+    for (i = 0; i < bot.scanModules.length; i++) {
+      if (scan.type === bot.scanModules[i].type && bot.scanModules[i].enabled) {
+        botClients[id].scans.set(bot.scanModules[i].type, scan);
+        botClients[id].scanModules.push(bot.scanModules[i]);
+      }
+    }
+  }
 
   if (!reInit) {
     try {
       await botClients[id].login(bot.botToken);
+
+      await botClients[id].once('ready', () => {
+        console.log(`Ready: ${botClients[id].botId}`);
+      });
     } catch (err) {
-      console.log(`${botClients[id].botId} encountered an error. ${err.name}` )
+      console.log(`Error: ${botClients[id].botId} - ${err.message}`);
+      delete botClients[id];
+      return;
     }
-    
-  
-    botClients[id].once('ready', () => {
-      console.log(`Ready: ${botClients[id].botId}`);
-    });
   }
 
-  const message = (message) => {
+  const message = async (message) => {
 
     // Do nothing if message is from a bot or dm channel.
     if (message.author.bot || message.channel.type == "dm") return;
 
-    // Attempt to execute all available scan modules on the incoming message.
-    // If an scanModule returns true, that means it was executed and we can forgo any further action.
-    for (i = 0; i < bot.scanModules.length; i++) {
-      const scanCheck = botClients[id].scans.get(bot.scanModules[i].type).execute(message, bot.scanModules[i]);
-      if (scanCheck) return;
+    // Scan Module Rules:
+    // * A provoked scan module will prevent any command module from executing. 
+    // * Scan modules that execute messsage delete operations will override all other responses.
+    // * Multiple responses may be given if multiple scan modules are provoked without a message delete operation.
+    let responseArray = [];
+    for (i = 0; i < botClients[id].scanModules.length; i++) {
+      const result = await botClients[id].scans.get(botClients[id].scanModules[i].type).execute(message, botClients[id].scanModules[i]);
+
+      if (result.deleteCheck) {
+        message.delete();
+        (result.location === "server"
+          ? message.channel.send(result.response.toString())
+          : message.author.send(result.response.toString())
+        );
+        return;
+      }
+      
+      if (result && result.response) { responseArray.push(result); }
     }
+
+    let executeCheck = false;
+    for (let i=0; i < responseArray.length; i++) {
+      executeCheck = true;
+      (responseArray[i].location === "server"
+        ? message.channel.send(responseArray[i].response.toString())
+        : message.author.send(responseArray[i].response.toString())
+      );
+    }
+    if (executeCheck) return;
 
     // Do nothing if message does not start with prefix.
     if (!message.content.startsWith(bot.prefix)) return;
 
     const args = message.content.slice(bot.prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
-  
+
     // Do nothing if botClient does not recognize given command 
     if (!botClients[id].commands.has(command)) return;
-  
+
     try {
       const botModule = bot.commandModules.find(module => module.command.toLowerCase() === command);
       botClients[id].commands.get(command).execute(message, botModule);
@@ -98,25 +125,28 @@ async function initiateBot (bot) {
       message.reply('there was an error trying to execute that command!');
     }
   }
-	
+
   botClients[id].on('messageCreate', message);
 }
 
-async function verifyBotWithDiscord (token) {
-  const bot = new Discord.Client({ intents: baseIntents});
-  
+// Attempts to login with given bot token
+// Returns appropriate errors if there is a problem
+// Returns basic information on the bot application if successful 
+async function verifyBotWithDiscord(token) {
+  const bot = new Discord.Client({ intents: baseIntents });
+
   try {
     await bot.login(token);
   }
   catch (err) {
     bot.destroy();
-    return {"error": err.name};
+    return { "error": err.name };
   }
 
   const info = {
     "error": false,
-    "id" : bot.user.id,
-    "name" : bot.user.username,
+    "id": bot.user.id,
+    "name": bot.user.username,
   }
 
   bot.destroy();
@@ -125,8 +155,8 @@ async function verifyBotWithDiscord (token) {
 }
 
 // Return avatar URL for Bot
-function returnAvatarUrl (id) {
-  
+function returnAvatarUrl(id) {
+
   // If bot is not an active client, the avatar cannot be retrieved.
   if (!returnStatus(id)) {
     return "";
@@ -135,7 +165,7 @@ function returnAvatarUrl (id) {
   const avatarId = botClients[id].user.avatar;
   const botDiscordId = botClients[id].botId;
 
-  if(!avatarId) {
+  if (!avatarId) {
     return "";
   }
 
@@ -143,7 +173,7 @@ function returnAvatarUrl (id) {
 }
 
 // Return bot status as an active client
-function returnStatus (id) {
+function returnStatus(id) {
   const status = botClients[id];
 
   if (status === undefined) { return false }

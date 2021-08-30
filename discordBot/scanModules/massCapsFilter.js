@@ -1,23 +1,29 @@
-module.exports = {
-	type: 'masscaps-filter',
-	execute(message, botModule) {
-    let scanCheck = false;
+const { messageParser } = require("../commandUtils");
 
-    if (message.content.length < 20) return scanCheck;
+module.exports = {
+  type: 'masscaps-filter',
+  async execute(message, botModule) {
+    let deleteCheck = false;
+    let response = '';
+
+    if (message.content.length < 20) return false;
 
     const count = message.content.replace(/[^A-Z]/g, "").length;
 
-    if (count > botModule.limit) {
+    if (count > message.content.length * .7) {
       if (botModule.delete) {
-          scanCheck = true;
-          message.delete();
+        deleteCheck = true;
       }
-      
+
       if (botModule.response) {
-          scanCheck = true;
-          message.channel.send(botModule.response.toString());
+        try {
+          response = await messageParser(message, botModule.response);
+        } catch (err) {
+          message.channel.send(err.message);
+        }
       }
+      return {deleteCheck: deleteCheck, response: response, location: botModule.location};
     }
-    return scanCheck;
-	},
+    return false;
+  },
 };

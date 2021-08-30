@@ -1,11 +1,15 @@
+const { messageParser } = require("../commandUtils");
+
 module.exports = {
   type: 'word-filter',
-  execute(message, botModule) {
-    const triggerWords = botModule.triggerWords;
+  async execute(message, botModule) {
+    let deleteCheck = false;
+    let response = '';
     let triggerFound = false;
-    let scanCheck = false;
 
-    // We have to sanitize messages of discord text decoration
+    const triggerWords = botModule.triggerWords;
+
+    // Sanitize messages of discord text decoration to prevent filter evasion
     let sanitizedMessage = message.content.replaceAll("_", '');
     sanitizedMessage = sanitizedMessage.replaceAll("*", '');
 
@@ -18,46 +22,20 @@ module.exports = {
       }
     }
 
-    // If trigger word is found, then filter the message.
     if (triggerFound) {
-      let responseMessage = '';
-
-      if (botModule.deleteUserMessage) {
-        message.delete();
-        scanCheck = true;
+      if (botModule.delete) {
+        deleteCheck = true;
       }
-      if (botModule.warnUser) {
-        responseMessage = `Hey ${message.author}! ${botModule.warningResponse}`;
-      }
-      if (botModule.editUserMessage) {
-        let editedMessage = sanitizedMessage;
-        let filteredWords = 0;
 
-        for (let i = 0; i < triggerWords.length; i++) {
-          let filterMask = triggerWords[i];
-          let regEx = new RegExp(filterMask, 'ig');
-
-          filteredWords += (editedMessage.match(regEx) ? editedMessage.match(regEx).length : 0);
-          if (filteredWords > 5) {
-            break;
-          }
-
-          editedMessage = editedMessage.replace(regEx, '[redacted]');
-        }
-
-        if (filteredWords > 5) {
-          responseMessage = `Hey ${message.author}! ${botModule.spamResponse}`;
-        } else {
-          responseMessage = `${responseMessage} \n\n ${message.author.username} said: "${editedMessage}"`;
+      if (botModule.response) {
+        try {
+          response = await messageParser(message, botModule.response);
+        } catch (err) {
+          message.channel.send(err.message);
         }
       }
-
-      if (responseMessage) {
-        scanCheck = true;
-        message.channel.send(`${responseMessage}`);
-      }
+      return {deleteCheck: deleteCheck, response: response, location: botModule.location};
     }
-
-    return scanCheck;
+    return deleteCheck;
   },
 };
