@@ -15,6 +15,12 @@ const massMentionsFilterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  ignoredRoles: [
+    {
+      type: String,
+      trim: true,
+    },
+  ],
   limit: {
     type: Number,
     default: 5,

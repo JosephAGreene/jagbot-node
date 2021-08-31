@@ -15,6 +15,12 @@ const massCapsFilterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  ignoredRoles: [
+    {
+      type: String,
+      trim: true,
+    },
+  ],
   delete: {
     type: Boolean,
     default: false,

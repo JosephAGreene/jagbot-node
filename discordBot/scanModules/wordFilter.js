@@ -1,4 +1,4 @@
-const { messageParser } = require("../commandUtils");
+const { messageParser, roleMatch } = require("../commandUtils");
 
 module.exports = {
   type: 'word-filter',
@@ -23,6 +23,14 @@ module.exports = {
     }
 
     if (triggerFound) {
+      // Exit function if message author is assigned an ignored role
+      try {
+        roleMatched = await roleMatch(message, botModule.ignoredRoles);
+        if (roleMatched) return false;
+      } catch (err) {
+        message.channel.send(err.message);
+      }
+
       if (botModule.delete) {
         deleteCheck = true;
       }

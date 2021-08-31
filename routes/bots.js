@@ -87,6 +87,7 @@ router.post("/invite-filter", async (req, res) => {
 
   const newInviteFilter = new InviteFilter({
     enabled: req.body.enabled,
+    ignoredRoles: req.body.ignoredRoles,
     delete: req.body.delete,
     response: req.body.response,
     location: req.body.location,
@@ -106,6 +107,7 @@ router.post("/masscaps-filter", async (req, res) => {
 
   const newMassCapsFilter = new MassCapsFilter({
     enabled: req.body.enabled,
+    ignoredRoles: req.body.ignoredRoles,
     delete: req.body.delete,
     response: req.body.response,
     location: req.body.location,
@@ -125,6 +127,7 @@ router.post("/massmentions-filter", async (req, res) => {
 
   const newMassMentionsFilter = new MassMentionsFilter({
     enabled: req.body.enabled,
+    ignoredRoles: req.body.ignoredRoles,
     limit: req.body.limit,
     delete: req.body.delete,
     response: req.body.response,

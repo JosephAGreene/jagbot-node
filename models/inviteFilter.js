@@ -14,6 +14,12 @@ const inviteFilterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  ignoredRoles: [
+    {
+      type: String,
+      trim: true,
+    },
+  ],
   delete: {
     type: Boolean,
     default: false,
@@ -21,7 +27,7 @@ const inviteFilterSchema = new mongoose.Schema({
   response: {
     type: String,
     trim: true
-  }, 
+  },
   location: {
     type: String,
     trim: true,
