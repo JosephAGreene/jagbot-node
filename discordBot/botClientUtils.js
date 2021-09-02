@@ -154,6 +154,34 @@ async function verifyBotWithDiscord(token) {
   return info;
 }
 
+// Return all roles from all servers a bot is a member of
+async function returnRoles(id, token) {
+  let roleArray = [];
+
+  if(returnStatus(id)) {
+    botClients[id].guilds.cache.forEach((guild) => {
+      guild.roles.cache.forEach((role) => {
+        roleArray.push(role.name);
+      })
+    });
+  } else {
+    const bot = new Discord.Client({ intents: Discord.Intents.FLAGS.GUILDS });
+      try {
+        await bot.login(token);
+        bot.guilds.cache.forEach((guild) => {
+          guild.roles.cache.forEach((role) => {
+            roleArray.push(role.name);
+          })
+        });
+      }
+      catch (err) {
+        bot.destroy();
+        return console.log(err.name);
+      }
+  }
+  return Array.from(new Set(roleArray.map(e => e.toLowerCase())));
+}
+
 // Return avatar URL for Bot
 function returnAvatarUrl(id) {
 
@@ -183,12 +211,6 @@ function returnStatus(id) {
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
 exports.verifyBotWithDiscord = verifyBotWithDiscord;
+exports.returnRoles = returnRoles;
 exports.returnAvatarUrl = returnAvatarUrl;
 exports.returnStatus = returnStatus;
-
-// Testing Function For Role Return
-// botClients[id].guilds.cache.forEach((guild) => {
-//   guild.roles.cache.forEach((role) => {
-//     console.log(role.name);
-//   })
-// });
