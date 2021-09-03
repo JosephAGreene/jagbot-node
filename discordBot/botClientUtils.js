@@ -159,6 +159,8 @@ async function returnRoles(id, token) {
   let roleArray = [];
 
   if(returnStatus(id)) {
+    // Fetch guilds with await to gaurantee cache accuracy 
+    await botClients[id].guilds.fetch();
     botClients[id].guilds.cache.forEach((guild) => {
       guild.roles.cache.forEach((role) => {
         roleArray.push(role.name);
@@ -168,6 +170,8 @@ async function returnRoles(id, token) {
     const bot = new Discord.Client({ intents: Discord.Intents.FLAGS.GUILDS });
       try {
         await bot.login(token);
+        // Fetch guilds with await to gaurantee cache accuracy 
+        await bot.guilds.fetch();
         bot.guilds.cache.forEach((guild) => {
           guild.roles.cache.forEach((role) => {
             roleArray.push(role.name);
@@ -178,8 +182,9 @@ async function returnRoles(id, token) {
         bot.destroy();
         return console.log(err.name);
       }
+    bot.destroy();
   }
-  return Array.from(new Set(roleArray.map(e => e.toLowerCase())));
+  return console.log(Array.from(new Set(roleArray.map(e => e.toLowerCase()))));
 }
 
 // Return avatar URL for Bot
