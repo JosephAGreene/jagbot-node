@@ -18,14 +18,11 @@ async function messageParser (message, botModuleResponse) {
 // Returns true if message was authored by a user that is 
 // assigned a role that's also included in the rolesArray array
 async function roleMatch (message, rolesArray) {
-  const userRoles = await message.member._roles;
-
   for (let i=0; i < rolesArray.length; i++) {
-    if (userRoles.includes(rolesArray[i])) {
+    if (message.member.roles.cache.find(r => r.name.toLowerCase() === rolesArray[i])) {
       return true;
     }
   }
-
   return false;
 }
 
