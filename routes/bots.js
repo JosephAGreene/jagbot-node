@@ -7,7 +7,7 @@ const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { SteamNews } = require("../models/steamNews");
 const express = require("express");
 const router = express.Router();
-const { initiateBot, verifyBotWithDiscord } = require("../discordBot/botClientUtils");
+const { initiateBot, verifyBotWithDiscord, returnRoles } = require("../discordBot/botClientUtils");
 
 router.post("/add-new-bot", async (req, res) => {
   let user = await User.findById(req.body.user);
@@ -43,6 +43,14 @@ router.post("/add-new-bot", async (req, res) => {
   initiateBot(bot);
 
   res.send(bot);
+});
+
+router.post("/server-roles", async (req, res) => {
+  const bot = await Bot.findById(req.body._id);
+
+  const serverRoles = await returnRoles(bot._id, bot.botToken);
+
+  res.send(serverRoles);
 });
 
 
@@ -89,6 +97,7 @@ router.post("/invite-filter", async (req, res) => {
     enabled: req.body.enabled,
     ignoredRoles: req.body.ignoredRoles,
     delete: req.body.delete,
+    warn: req.body.warn,
     response: req.body.response,
     location: req.body.location,
   });
