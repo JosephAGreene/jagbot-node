@@ -154,7 +154,8 @@ async function verifyBotWithDiscord(token) {
   return info;
 }
 
-// Return all roles from all servers a bot is a member of
+// Return all roles from all servers the bot is a member of, 
+// with the exception of the universal @everyone role
 async function returnRoles(id, token) {
   let roleArray = [];
 
@@ -184,7 +185,16 @@ async function returnRoles(id, token) {
       }
     bot.destroy();
   }
-  return console.log(Array.from(new Set(roleArray.map(e => e.toLowerCase()))));
+  // Role names converted to lowercase and sorted alphabetically
+  const sortedRoles = Array.from(new Set(roleArray.map(e => e.toLowerCase()))).sort();
+
+  // @everyone removed if it exists
+  const everyoneIndex = sortedRoles.indexOf('@everyone');
+  if (!(everyoneIndex < 0)) {
+    sortedRoles.splice(everyoneIndex, 1);
+  }
+
+  return sortedRoles;
 }
 
 // Return avatar URL for Bot
