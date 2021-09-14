@@ -1,4 +1,4 @@
-const { messageParser } = require("../commandUtils");
+const { buildResponse } = require("../commandUtils");
 
 module.exports = {
   type: 'random-response',
@@ -11,8 +11,8 @@ module.exports = {
       // If a response exists in the responses array that correlates to the randomPosition number,
       // then respond with it. 
       if (botModule.responses[randomPosition]) {
-        const response = await messageParser(message, botModule.responses[randomPosition].response);
-        message.channel.send(response.toString());
+        const response = await buildResponse(message, botModule.responses[randomPosition]);
+        await response();
       }
     }
     catch (err) {

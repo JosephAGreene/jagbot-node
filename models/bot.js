@@ -42,6 +42,12 @@ const botSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  serverRoles: [
+    {
+      type: String,
+      trim: true
+    }
+  ],
   scanModules: [], // Scan Modules are modules that scan and execute on incoming messages if conditions are met. 
   commandModules: [], // Command Modules require a command to induce execution
 });

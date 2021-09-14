@@ -1,4 +1,4 @@
-const {messageParser} = require("../commandUtils");
+const {buildResponse} = require("../commandUtils");
 
 module.exports = {
 	type: 'single-response',
@@ -6,8 +6,8 @@ module.exports = {
 	async execute(message, botModule) {
     
     try {
-      const response = await messageParser(message, botModule.response);
-      message.channel.send(response.toString());
+      const response = await buildResponse(message, botModule);
+      await response();
     } catch (err) {
       message.channel.send(err.message);
     }

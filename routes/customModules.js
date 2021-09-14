@@ -29,13 +29,13 @@ router.delete("/", async (req, res) => {
   res.send(bot);
 });
 
-router.post("/single-response", [auth, validate(addSingle)], async (req, res) => {
+router.post("/single-response", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
   if (!bot) return res.sendStatus(404);
 
-  // If bot doesn't belong to user, return 401
+  //If bot doesn't belong to user, return 401
   if (String(bot.owner) !== String(req.user._id)) { 
     return res.sendStatus(401);
   }
@@ -55,7 +55,17 @@ router.post("/single-response", [auth, validate(addSingle)], async (req, res) =>
     command: req.body.command,
     description: req.body.description,
     responseLocation: req.body.responseLocation,
+    responseType: req.body.responseType,
     response: req.body.response,
+    embedTitle: req.body.embedTitle,
+    embedLinkURL: req.body.embedLinkURL,
+    embedColor: req.body.embedColor,
+    embedThumbnailURL: req.body.embedThumbnailURL,
+    embedMainImageURL: req.body.embedMainImageURL,
+    embedDescription: req.body.embedDescription,
+    embedFields: req.body.embedFields,
+    embedFooter: req.body.embedFooter,
+    embedFooterThumbnailURL: req.body.embedFooterThumbnailURL,
   });
 
   bot.commandModules.push(newSingleResponse);
@@ -67,7 +77,7 @@ router.post("/single-response", [auth, validate(addSingle)], async (req, res) =>
   res.send(bot);
 });
 
-router.put("/update-single-response", [auth, validate(updateSingle)], async (req, res) => {
+router.put("/update-single-response", auth , async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
@@ -110,7 +120,17 @@ router.put("/update-single-response", [auth, validate(updateSingle)], async (req
     command: req.body.command,
     description: req.body.description,
     responseLocation: req.body.responseLocation,
+    responseType: req.body.responseType,
     response: req.body.response,
+    embedTitle: req.body.embedTitle,
+    embedLinkURL: req.body.embedLinkURL,
+    embedColor: req.body.embedColor,
+    embedThumbnailURL: req.body.embedThumbnailURL,
+    embedMainImageURL: req.body.embedMainImageURL,
+    embedDescription: req.body.embedDescription,
+    embedFields: req.body.embedFields,
+    embedFooter: req.body.embedFooter,
+    embedFooterThumbnailURL: req.body.embedFooterThumbnailURL,
   });
 
   await bot.save();
@@ -120,7 +140,7 @@ router.put("/update-single-response", [auth, validate(updateSingle)], async (req
   res.send(bot);
 });
 
-router.post("/optioned-response", [auth, validate(addOptioned)], async (req, res) => {
+router.post("/optioned-response", auth , async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
@@ -158,7 +178,17 @@ router.post("/optioned-response", [auth, validate(addOptioned)], async (req, res
     options.push({
       _id: new mongoose.Types.ObjectId(),
       keyword: option.keyword,
+      responseType: option.responseType,
       response: option.response,
+      embedTitle: option.embedTitle,
+      embedLinkURL: option.embedLinkURL,
+      embedColor: option.embedColor,
+      embedThumbnailURL: option.embedThumbnailURL,
+      embedMainImageURL: option.embedMainImageURL,
+      embedDescription: option.embedDescription,
+      embedFields: option.embedFields,
+      embedFooter: option.embedFooter,
+      embedFooterThumbnailURL: option.embedFooterThumbnailURL,
     });
   });
 
@@ -178,7 +208,7 @@ router.post("/optioned-response", [auth, validate(addOptioned)], async (req, res
   res.send(bot);
 });
 
-router.put("/update-optioned-response", [auth, validate(updateOptioned)], async (req, res) => {
+router.put("/update-optioned-response", auth, async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
@@ -232,7 +262,17 @@ router.put("/update-optioned-response", [auth, validate(updateOptioned)], async 
     options.push({
       _id: new mongoose.Types.ObjectId(),
       keyword: option.keyword,
+      responseType: option.responseType,
       response: option.response,
+      embedTitle: option.embedTitle,
+      embedLinkURL: option.embedLinkURL,
+      embedColor: option.embedColor,
+      embedThumbnailURL: option.embedThumbnailURL,
+      embedMainImageURL: option.embedMainImageURL,
+      embedDescription: option.embedDescription,
+      embedFields: option.embedFields,
+      embedFooter: option.embedFooter,
+      embedFooterThumbnailURL: option.embedFooterThumbnailURL,
     });
   });
 
@@ -252,7 +292,7 @@ router.put("/update-optioned-response", [auth, validate(updateOptioned)], async 
   res.send(bot);
 });
 
-router.post("/random-response", [auth, validate(addRandom)], async (req, res) => {
+router.post("/random-response", auth, async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
@@ -279,7 +319,17 @@ router.post("/random-response", [auth, validate(addRandom)], async (req, res) =>
   req.body.responses.forEach(response => {
     responses.push({
       _id: new mongoose.Types.ObjectId(),
+      responseType: response.responseType,
       response: response.response,
+      embedTitle: response.embedTitle,
+      embedLinkURL: response.embedLinkURL,
+      embedColor: response.embedColor,
+      embedThumbnailURL: response.embedThumbnailURL,
+      embedMainImageURL: response.embedMainImageURL,
+      embedDescription: response.embedDescription,
+      embedFields: response.embedFields,
+      embedFooter: response.embedFooter,
+      embedFooterThumbnailURL: response.embedFooterThumbnailURL,
     });
   });
 
@@ -299,7 +349,7 @@ router.post("/random-response", [auth, validate(addRandom)], async (req, res) =>
   res.send(bot);
 });
 
-router.put("/update-random-response", [auth, validate(updateRandom)], async (req, res) => {
+router.put("/update-random-response", auth, async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
@@ -342,7 +392,17 @@ router.put("/update-random-response", [auth, validate(updateRandom)], async (req
   req.body.responses.forEach(response => {
     responses.push({
       _id: new mongoose.Types.ObjectId(),
+      responseType: response.responseType,
       response: response.response,
+      embedTitle: response.embedTitle,
+      embedLinkURL: response.embedLinkURL,
+      embedColor: response.embedColor,
+      embedThumbnailURL: response.embedThumbnailURL,
+      embedMainImageURL: response.embedMainImageURL,
+      embedDescription: response.embedDescription,
+      embedFields: response.embedFields,
+      embedFooter: response.embedFooter,
+      embedFooterThumbnailURL: response.embedFooterThumbnailURL,
     });
   });
 

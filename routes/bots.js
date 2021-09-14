@@ -1,3 +1,6 @@
+const express = require("express");
+const router = express.Router();
+const auth = require("../middleware/auth");
 const { Bot } = require("../models/bot");
 const { User } = require("../models/user");
 const { WordFilter } = require("../models/wordFilter");
@@ -5,9 +8,50 @@ const { InviteFilter } = require("../models/inviteFilter");
 const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { SteamNews } = require("../models/steamNews");
-const express = require("express");
-const router = express.Router();
-const { initiateBot, verifyBotWithDiscord, returnRoles } = require("../discordBot/botClientUtils");
+const { initiateBot, verifyBotWithDiscord, returnRoles, returnBotInfo } = require("../discordBot/botClientUtils");
+
+// Get summary information for all bots that
+// belong to a single user.
+router.get("/summary", auth, async (req, res) => {
+  let bots = await Bot.find({owner: req.user._id});
+
+  let botSummary = [];
+
+  for (let i=0; i < bots.length; i++) {
+    let moduleCount = bots[i].commandModules.length;
+    for (let j=0; j < bots[i].scanModules.length; j++) {
+      if (bots[i].scanModules[j].enabled) {
+        moduleCount++;
+      }
+    }
+    let botInfo = await returnBotInfo(bots[i]._id, bots[i].botId, bots[i].botToken);
+    botSummary.push({
+      _id: bots[i]._id,
+      creationDate: bots[i].creationDate,
+      name: botInfo.name,
+      avatarURL: botInfo.avatarUrl,
+      status: botInfo.status,
+      moduleCount: moduleCount,
+    });
+  }
+  res.send(botSummary);
+});
+
+// To be called before taking a bot to the lab
+// Will update bot name, avatarURL, serverRoles, and status
+// before returning all the bot's info
+router.post("/checkout-bot", async (req, res) => {
+  let bot = await Bot.findById(req.body._id);
+  
+  bot.set('status', req.body.status);
+  bot.set('avatarURL', req.body.avatarURL);
+  bot.set('name', req.body.name);
+  bot.set('serverRoles', await returnRoles(bot._id, bot.botToken));
+
+  bot.save();
+
+  res.send(bot);
+});
 
 router.post("/add-new-bot", async (req, res) => {
   let user = await User.findById(req.body.user);
@@ -62,88 +106,6 @@ router.post("/steam-news", async (req, res) => {
   });
 
   bot.commandModules.push(newSteamNews);
-
-  await bot.save();
-
-  initiateBot(bot);
-
-  res.send(bot);
-});
-
-router.post("/word-filter", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
-
-  const newWordFilter = new WordFilter({
-    enabled: req.body.enabled,
-    triggerWords: req.body.triggerWords,
-    delete: req.body.delete,
-    response: req.body.response,
-    location: req.body.location,
-  });
-
-  bot.scanModules.push(newWordFilter);
-
-  await bot.save();
-
-  initiateBot(bot);
-
-  res.send(bot);
-});
-
-router.post("/invite-filter", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
-
-  const newInviteFilter = new InviteFilter({
-    enabled: req.body.enabled,
-    ignoredRoles: req.body.ignoredRoles,
-    delete: req.body.delete,
-    warn: req.body.warn,
-    response: req.body.response,
-    location: req.body.location,
-  });
-
-  bot.scanModules.push(newInviteFilter);
-
-  await bot.save();
-
-  initiateBot(bot);
-
-  res.send(bot);
-});
-
-router.post("/masscaps-filter", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
-
-  const newMassCapsFilter = new MassCapsFilter({
-    enabled: req.body.enabled,
-    ignoredRoles: req.body.ignoredRoles,
-    delete: req.body.delete,
-    response: req.body.response,
-    location: req.body.location,
-  });
-
-  bot.scanModules.push(newMassCapsFilter);
-
-  await bot.save();
-
-  initiateBot(bot);
-
-  res.send(bot);
-});
-
-router.post("/massmentions-filter", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
-
-  const newMassMentionsFilter = new MassMentionsFilter({
-    enabled: req.body.enabled,
-    ignoredRoles: req.body.ignoredRoles,
-    limit: req.body.limit,
-    delete: req.body.delete,
-    response: req.body.response,
-    location: req.body.location,
-  });
-
-  bot.scanModules.push(newMassMentionsFilter);
 
   await bot.save();
 

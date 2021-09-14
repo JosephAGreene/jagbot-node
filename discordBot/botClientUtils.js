@@ -88,18 +88,20 @@ async function initiateBot(bot) {
 
       if (result.deleteCheck) {
         message.delete();
-        (result.location === "server"
-          ? message.channel.send(result.response.toString())
-          : message.author.send(result.response.toString())
-        );
+        if (result.warn) {
+          (result.location === "server"
+            ? message.channel.send(result.response.toString())
+            : message.author.send(result.response.toString())
+          );
+        }
         return;
       }
-      
+
       if (result && result.response) { responseArray.push(result); }
     }
 
     let executeCheck = false;
-    for (let i=0; i < responseArray.length; i++) {
+    for (let i = 0; i < responseArray.length; i++) {
       executeCheck = true;
       (responseArray[i].location === "server"
         ? message.channel.send(responseArray[i].response.toString())
@@ -159,7 +161,7 @@ async function verifyBotWithDiscord(token) {
 async function returnRoles(id, token) {
   let roleArray = [];
 
-  if(returnStatus(id)) {
+  if (returnStatus(id)) {
     // Fetch guilds with await to gaurantee cache accuracy 
     await botClients[id].guilds.fetch();
     botClients[id].guilds.cache.forEach((guild) => {
@@ -169,20 +171,20 @@ async function returnRoles(id, token) {
     });
   } else {
     const bot = new Discord.Client({ intents: Discord.Intents.FLAGS.GUILDS });
-      try {
-        await bot.login(token);
-        // Fetch guilds with await to gaurantee cache accuracy 
-        await bot.guilds.fetch();
-        bot.guilds.cache.forEach((guild) => {
-          guild.roles.cache.forEach((role) => {
-            roleArray.push(role.name);
-          })
-        });
-      }
-      catch (err) {
-        bot.destroy();
-        return console.log(err.name);
-      }
+    try {
+      await bot.login(token);
+      // Fetch guilds with await to gaurantee cache accuracy 
+      await bot.guilds.fetch();
+      bot.guilds.cache.forEach((guild) => {
+        guild.roles.cache.forEach((role) => {
+          roleArray.push(role.name);
+        })
+      });
+    }
+    catch (err) {
+      bot.destroy();
+      return console.log(err.name);
+    }
     bot.destroy();
   }
   // Role names converted to lowercase and sorted alphabetically
@@ -197,22 +199,9 @@ async function returnRoles(id, token) {
   return sortedRoles;
 }
 
-// Return avatar URL for Bot
-function returnAvatarUrl(id) {
-
-  // If bot is not an active client, the avatar cannot be retrieved.
-  if (!returnStatus(id)) {
-    return "";
-  }
-
-  const avatarId = botClients[id].user.avatar;
-  const botDiscordId = botClients[id].botId;
-
-  if (!avatarId) {
-    return "";
-  }
-
-  return `https://cdn.discordapp.com/avatars/${botDiscordId}/${avatarId}.png`;
+// Convert discord ids into avatar URL
+function returnAvatarUrl(userId, avatarId) {
+  return `https://cdn.discordapp.com/avatars/${userId}/${avatarId}.png`;
 }
 
 // Return bot status as an active client
@@ -223,9 +212,30 @@ function returnStatus(id) {
   return true;
 }
 
+
+async function returnBotInfo(id, botId, token) {
+  let botInfo = {};
+
+  if (returnStatus(id)) {
+    const botFetch = await botClients[id].users.fetch(botId);
+    botInfo.status = true;
+    botInfo.name = botFetch.username;
+    botInfo.avatarUrl = returnAvatarUrl(botId, botFetch.avatar);
+  } else {
+    const bot = new Discord.Client({ intents: Discord.Intents.FLAGS.GUILDS });
+    await bot.login(token);
+    const botFetch = await bot.users.fetch(botId);
+    botInfo.status = false;
+    botInfo.name = botFetch.username;
+    botInfo.avatarUrl = returnAvatarUrl(botId, botFetch.avatar);
+    bot.destroy();
+  }
+  return botInfo;
+}
+
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
 exports.verifyBotWithDiscord = verifyBotWithDiscord;
 exports.returnRoles = returnRoles;
-exports.returnAvatarUrl = returnAvatarUrl;
 exports.returnStatus = returnStatus;
+exports.returnBotInfo = returnBotInfo;

@@ -1,4 +1,4 @@
-const { messageParser } = require("../commandUtils");
+const { buildResponse } = require("../commandUtils");
 
 module.exports = {
   type: 'optioned-response',
@@ -13,8 +13,8 @@ module.exports = {
       //Determine if options list for collection reply has correlated keyword
       for (let i = 0; i < botModule.options.length; i++) {
         if (botModule.options[i].keyword.toLowerCase() === optionKeyword.toLowerCase()) {
-          const response = await messageParser(message, botModule.options[i].response);
-          message.channel.send(response.toString());
+          const response = await buildResponse(message, botModule.options[i]);
+          await response();
           break;
         }
       }

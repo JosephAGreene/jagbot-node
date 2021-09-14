@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const { User } = require("../models/user");
-const {returnAvatarUrl, returnStatus} = require("../discordBot/botClientUtils");
+const {returnAvatarUrl, returnStatus, returnRoles} = require("../discordBot/botClientUtils");
 
 
 router.get('/discord', passport.authenticate('discord'));
@@ -13,20 +13,12 @@ router.get('/discord/redirect', passport.authenticate('discord'), async (req, re
 
 router.get('/', async (req, res) => {
   if (req.user) {
-    const user = await User.findById(req.user._id, '-__v')
-    .populate('bots', '-botToken -__v');
+    const user = await User.findById(req.user._id, '-__v');
 
     if(!user) {
       res.sendStatus(401);
     }
 
-    user.bots.forEach(async (bot) => {
-      // Grabbing URLs for avatar images if possible
-      bot.set('avatarURL', returnAvatarUrl(bot._id));
-      bot.set('status', returnStatus(bot._id)); 
-      await bot.save();
-    })
-    await user.save();
     res.send(user);
   } else {
     res.sendStatus(401);

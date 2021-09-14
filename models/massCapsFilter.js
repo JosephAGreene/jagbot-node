@@ -25,6 +25,10 @@ const massCapsFilterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  warn: {
+    type: Boolean,
+    default: false,
+  },
   response: {
     type: String,
     trim: true

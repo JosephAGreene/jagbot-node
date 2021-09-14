@@ -19,14 +19,15 @@ module.exports = {
         deleteCheck = true;
       }
 
-      if (botModule.response) {
+      if (botModule.warn) {
+        warn = true;
         try {
           response = await messageParser(message, botModule.response);
         } catch (err) {
           message.channel.send(err.message);
         }
-      }
-      return {deleteCheck: deleteCheck, response: response, location: botModule.location};
+      } 
+      return {deleteCheck: deleteCheck, warn: botModule.warn, response: response, location: botModule.location};
     }
     return false;
   },
