@@ -1,8 +1,8 @@
 require( 'dotenv' ).config();
 const request = require('supertest');
 const mongoose = require('mongoose');
-const { User } = require("../../models/user");
-const { Bot } = require("../../models/bot");
+const { User } = require("../../../models/user");
+const { Bot } = require("../../../models/bot");
 
 describe('/api/custom-modules', () => {
   let server;
@@ -12,7 +12,7 @@ describe('/api/custom-modules', () => {
   let botToken = process.env.SUPERTEST_BOT_TOKEN;
   
   beforeAll(async () => {
-    server = require('../testServer'); 
+    server = require('../../testServer'); 
   })
 
   beforeEach(async () => { 
