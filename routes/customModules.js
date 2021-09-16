@@ -30,7 +30,7 @@ router.delete("/", async (req, res) => {
   res.send(bot);
 });
 
-router.post("/single-response", [auth, validate(addSingle)],async (req, res) => {
+router.post("/single-response", [auth, validate(addSingle)], async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
@@ -78,7 +78,7 @@ router.post("/single-response", [auth, validate(addSingle)],async (req, res) => 
   res.send(bot);
 });
 
-router.put("/update-single-response", auth , async (req, res) => {
+router.put("/update-single-response", [auth, validate(updateSingle)], async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404

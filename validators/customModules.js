@@ -3,7 +3,7 @@ const Joi = require('joi');
 const baseCommandModuleSchema = {
   botId: Joi.string().trim().required()
     .messages({
-      "string.empty": 'Bot ID is required',
+      "string.empty": 'Bot ID cannot be blank',
       "any.required": 'Bot ID is required',
     }),
   command: Joi.string().trim().max(30).required()
@@ -163,8 +163,6 @@ const baseResponseSchema = {
     }),
 }
 
-
-
 function addSingle(body) {
   const addSingleSchema = Joi.object({ 
     ...baseCommandModuleSchema,
@@ -174,14 +172,16 @@ function addSingle(body) {
 }
 
 function updateSingle(body) {
-  const updateSchema = baseSchema.keys({
+  const updateSingleSchema = Joi.object({
     moduleId: Joi.string().trim().required()
-      .messages({
-        "string.empty": 'Module ID is required',
-        "any.required": 'Module ID is required',
-      }),
+    .messages({
+      "string.empty": 'Module ID cannot be blank',
+      "any.required": 'Module ID is required',
+    }),
+    ...baseCommandModuleSchema,
+    ...baseResponseSchema,
   });
-  return updateSchema.validate(body);
+  return updateSingleSchema.validate(body);
 }
 
 exports.addSingle = addSingle;
