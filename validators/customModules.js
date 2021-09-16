@@ -184,5 +184,23 @@ function updateSingle(body) {
   return updateSingleSchema.validate(body);
 }
 
+function addRandom(body) {
+  const addRandomSchema = Joi.object({
+    ...baseCommandModuleSchema,
+    responses: Joi.array().min(1).required().items(
+      Joi.object({
+        _id: Joi.string(),
+        ...baseResponseSchema,
+      }))
+      .messages({
+        "array.min": `At least one response is required`,
+        "array.base": 'Responses property must be an array',
+        "any.required": `Responses property is required`,
+      }),
+  });
+  return addRandomSchema.validate(body);
+}
+
 exports.addSingle = addSingle;
 exports.updateSingle = updateSingle;
+exports.addRandom = addRandom;

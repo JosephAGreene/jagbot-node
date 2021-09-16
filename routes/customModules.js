@@ -3,8 +3,8 @@ const validate = require("../middleware/validate");
 const { Bot } = require("../models/bot");
 const { SingleResponse } = require("../models/singleResponse");
 const { OptionedResponse, addOptioned, updateOptioned } = require("../models/optionedResponse");
-const { RandomResponse, addRandom, updateRandom } = require("../models/randomResponse");
-const {addSingle, updateSingle} = require("../validators/customModules");
+const { RandomResponse, updateRandom } = require("../models/randomResponse");
+const {addSingle, updateSingle, addRandom} = require("../validators/customModules");
 
 const mongoose = require('mongoose');
 const express = require("express");
@@ -293,7 +293,7 @@ router.put("/update-optioned-response", auth, async (req, res) => {
   res.send(bot);
 });
 
-router.post("/random-response", auth, async (req, res) => {
+router.post("/random-response", [auth, validate(addRandom)], async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
