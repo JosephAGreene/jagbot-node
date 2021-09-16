@@ -75,7 +75,6 @@ describe('/api/custom-modules', () => {
       responses: [
         {
           _id: "12312322",
-          responseLocation: "server",
           responseType: "basic",
           response: "This is a response",
           embedTitle: "",
@@ -99,7 +98,6 @@ describe('/api/custom-modules', () => {
       responses: [
         {
           _id: "1231982",
-          responseLocation: "server",
           responseType: "embed",
           response: "",
           embedTitle: "Title",
@@ -175,398 +173,296 @@ describe('/api/custom-modules', () => {
 
     it('should return 400 if provided command is not valid', async () => {
       // missing command property
-      const payload1 = {
-        ...payloadBasic
-      }
-      delete payload1.command;
-
-      const payload2 = {
-        ...payloadBasic,
-        command: "",
-      }
-
-      // command more than 2 words
-      const payload3 = {
-        ...payloadBasic,
-        command: "One Two"
-      }
-
-      // command greater than 30 characters
-      const payload4 = {
-        ...payloadBasic,
-        command: "Thisisareallylongwordthatexceedsthe30characterlimit"
-      }
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-      const res4 = await exec(true, true, payload4);
-
+      delete payloadBasic.command;
+      const res1 = await exec(true, true, payloadBasic);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Command is required");
+    
+      // command vlaue blank
+      payloadBasic.command = "";
+      const res2 = await exec(true, true, payloadBasic);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Command cannot be blank");
+
+      // command more than 1 word
+      payloadBasic.command = "One Two";
+      const res3 = await exec(true, true, payloadBasic);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("Command must be a single word");
+
+      // command greater than 30 characters
+      payloadBasic.command = "Thisisareallylongwordthatexceedsthe30characterlimit";
+      const res4 = await exec(true, true, payloadBasic);
       expect(res4.status).toBe(400);
       expect(res4.text).toBe("Command cannot be greater than 30 characters");
+
     });
 
     it('should return 400 if provided description is not valid', async () => {
       // missing description property
-      const payload1 = {
-        ...payloadBasic
-      }
-      delete payload1.description;
-
-      // description greater than 250 characters
-      const payload2 = {
-        ...payloadBasic,
-        description: new Array(252).join('a'),
-      }
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-
+      delete payloadBasic.description;
+      const res1 = await exec(true, true, payloadBasic);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Description is required");
+
+      // description greater than 250 characters
+      payloadBasic.description = new Array(252).join('a');
+      const res2 = await exec(true, true, payloadBasic);      
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Description cannot be greater than 250 characters");
+
     });
 
     it('should return 400 if provided responseLocation is not valid', async () => {
       // missing responseLocation property
-      const payload1 = {
-        ...payloadBasic
-      }
-      delete payload1.responseLocation;
-
-      // invalid responseLocation property
-      const payload2 = {
-        ...payloadBasic,
-        responseLocation: "notvalid"
-      }
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-
+      delete payloadBasic.responseLocation;
+      const res1 = await exec(true, true, payloadBasic);  
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Response Location is required");
+
+      // invalid responseLocation property
+      payloadBasic.responseLocation = "notvalid";
+      const res2 = await exec(true, true, payloadBasic);  
       expect(res2.status).toBe(400);
       expect(res2.text).toBe('Response Location must be either "server" or "directmessage"');
+
     });
 
-    it('should return 400 if provided options array is not valid', async () => {
+    it('should return 400 if provided responses array is not valid', async () => {
       // missing responses property
-      const payload1 = {
-        ...payload,
-      }
-      delete payload1.responses;
+      delete payloadBasic.responses;
+      const res1 = await exec(true, true, payloadBasic);
+      expect(res1.status).toBe(400);
+      expect(res1.text).toBe("Responses property is required");  
 
       // responses propery not an array
-      const payload2 = {
-        ...payload,
-        responses: "a string",
-      }
+      payloadBasic.responses = "a string";
+      const res2 = await exec(true, true, payloadBasic);
+      expect(res2.status).toBe(400);
+      expect(res2.text).toBe("Responses property must be an array");  
 
       // responses array empty
-      const payload3 = {
-        ...payload,
-        responses: [],
-      }
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-
-      expect(res1.status).toBe(400);
-      expect(res1.text).toBe("Responses property is required");
-      expect(res2.status).toBe(400);
-      expect(res2.text).toBe("Responses property must be an array");
+      payloadBasic.responses = [];
+      const res3 = await exec(true, true, payloadBasic);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("At least one response is required");
+ 
     });
 
     it('should return 400 if provided responseType is not valid', async () => {
       // missing responseType property
-      const payload1 = {
-        ...payloadBasic
-      }
-      delete payload1.responses[0].responseType;
-
-      // responseType is something other than "basic" or "embed"
-      const payload2 = {
-        ...payloadBasic,
-      }
-      payload2.responses[0].responseType = "NotBasicOrEmbed";
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-
+      delete payloadBasic.responses[0].responseType;
+      const res1 = await exec(true, true, payloadBasic);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Response type is required");
+
+      // responseType is something other than "basic" or "embed"
+      payloadBasic.responses[0].responseType = "NotBasicOrEmbed";
+      const res2 = await exec(true, true, payloadBasic);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe('Response type must be either "basic" or "embed"');
-    });
-
-    it('should return 400 if provided response is not valid (while responeType is basic)', async () => {
-      // missing response property
-      const payload1 = {...payloadBasic};
-      delete payload1.responses[0].response;
-
-      // blank response value
-      const payload2 = {...payloadBasic};
-      payload2.responses[0].response = "";
-
-      // response greater than 1500 characters
-      const payload3 = {...payloadBasic}
-      payload3.responses[0].response = new Array(1502).join('a');
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-
-      expect(res1.status).toBe(400);
-      expect(res1.text).toBe("Response property is required");
-      expect(res2.status).toBe(400);
-      expect(res2.text).toBe("Response cannot be blank");
-      expect(res3.status).toBe(400);
-      expect(res3.text).toBe("Response cannot be greater than 1500 characters");
+      
     });
 
     // While responseType = embed
     it('should return 400 if provided embedTitle is not valid', async () => {
       // missing embedTitle
-      const payload1 = {...payloadEmbed};
-      delete payload1.responses[0].embedTitle;
-
-      const payload2 = {...payloadEmbed};
-      payload2.responses[0].embedTitle = "";
-
-      // embedTitle greater than 240 characters
-      const payload3 = {...payloadEmbed};
-      payload3.responses[0].embedTitle = new Array(242).join('a');
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-
+      delete payloadEmbed.responses[0].embedTitle;
+      const res1 = await exec(true, true, payloadEmbed);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Title is required");
+
+      // blank embedTitle
+      payloadEmbed.responses[0].embedTitle = "";
+      const res2 = await exec(true, true, payloadEmbed);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Title cannot be blank");
+
+      // embedTitle greater than 240 characters
+      payloadEmbed.responses[0].embedTitle = new Array(242).join('a');
+      const res3 = await exec(true, true, payloadEmbed);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("Title cannot be greater than 240 characters");
+
     });
 
     // While responseType = embed
     it('should return 400 if provided embedLinkURL is not valid', async () => {
       // missing embedLinkURL property
-      const payload1 = {...payloadEmbed};
-      delete payload1.responses[0].embedLinkURL;
-
-      // embedLinkURL greater than 2040 characters
-      const payload2 = {...payloadEmbed};
-      payload2.responses[0].embedLinkURL = `http://www.google.com/${new Array(2042).join('a')}`;
-
-      // embedLinkURL an invalid URL pattern
-      const payload3 = {...payloadEmbed};
-      payload3.responses[0].embedLinkURL = "invalidurl";
-
-      // Ensure an empty embedLinkURL property is valid
-      const payload4 = {...payloadEmbed};
-      payload4.responses[0].embedLinkURL = "";
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-      const res4 = await exec(true, true, payload4);
-
+      delete payloadEmbed.responses[0].embedLinkURL;
+      const res1 = await exec(true, true, payloadEmbed);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Link url is required");
+
+      // embedLinkURL greater than 2040 characters
+      payloadEmbed.responses[0].embedLinkURL = `http://www.google.com/${new Array(2042).join('a')}`;
+      const res2 = await exec(true, true, payloadEmbed);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Urls cannot be greater than 2040 characters");
+
+      // embedLinkURL an invalid URL pattern
+      payloadEmbed.responses[0].embedLinkURL = "invalidurl";
+      const res3 = await exec(true, true, payloadEmbed);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("Urls must be valid and well formed (http or https)");
+
+      // Ensure an empty embedLinkURL property is valid
+      payloadEmbed.responses[0].embedLinkURL = "";
+      const res4 = await exec(true, true, payloadEmbed);
       expect(res4.status).toBe(200);
+
     });
 
     // While responseType = embed
     it('should return 400 if provided embedColor is not valid', async () => {
       // missing embedColor
-      const payload1 = {
-        ...payloadEmbed
-      }
-      delete payload1.responses[0].embedColor;
-
-      // embedColor greater than 7 characters
-      const payload2 = {...payloadEmbed};
-      payload2.responses[0].embedColor = "#FFFFFFF";
-
-      // embedColor an invalid hex pattern
-      const payload3 = {...payloadEmbed};
-      payload3.responses[0].embedColor = "#FFFS";
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-
+      delete payloadEmbed.responses[0].embedColor;
+      const res1 = await exec(true, true, payloadEmbed);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Color is required");
+
+      // embedColor greater than 7 characters
+      payloadEmbed.responses[0].embedColor = "#FFFFFFF";
+      const res2 = await exec(true, true, payloadEmbed);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Color must be a valid hex code");
+
+      // embedColor an invalid hex pattern
+      payloadEmbed.responses[0].embedColor = "#FFFS";
+      const res3 = await exec(true, true, payloadEmbed);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("Color must be a valid hex code");
+
     });
 
     // While responseType = embed
     it('should return 400 if provided embedThumbnailURL is not valid', async () => {
       // missing embedThumbnailURL
-      const payload1 = {...payloadEmbed};
-      delete payload1.responses[0].embedThumbnailURL;
-
-      // embedThumbnailURL greater than 2040 characters
-      const payload2 = {...payloadEmbed};
-      payload2.responses[0].embedThumbnailURL = `http://www.google.com/${new Array(2042).join('a')}`;
-
-      // embedTumbnailURL an invalid URL pattern
-      const payload3 = {...payloadEmbed};
-      payload3.responses[0].embedThumbnailURL = "invalidurl";
-
-      // Ensure an empty embedThumbnailURL property is valid
-      const payload4 = {...payloadEmbed};
-      payload4.responses[0].embedThumbnailURL = "";
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-      const res4 = await exec(true, true, payload4);
-
+      delete payloadEmbed.responses[0].embedThumbnailURL;
+      const res1 = await exec(true, true, payloadEmbed);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Thumbnail url property is required");
+
+      // embedThumbnailURL greater than 2040 characters
+      payloadEmbed.responses[0].embedThumbnailURL = `http://www.google.com/${new Array(2042).join('a')}`;
+      const res2 = await exec(true, true, payloadEmbed);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Urls cannot be greater than 2040 characters");
+
+      // embedTumbnailURL an invalid URL pattern
+      payloadEmbed.responses[0].embedThumbnailURL = "invalidurl";
+      const res3 = await exec(true, true, payloadEmbed);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("Urls must be valid and well formed (http or https)");
+
+      // Ensure an empty embedThumbnailURL property is valid
+      payloadEmbed.responses[0].embedThumbnailURL = "";
+      const res4 = await exec(true, true, payloadEmbed);
       expect(res4.status).toBe(200);
+
     });
 
     // While responseType = embed
     it('should return 400 if provided embedMainImageURL is not valid', async () => {
       // missing embedMainImageURL
-      const payload1 = {...payloadEmbed};
-      delete payload1.responses[0].embedMainImageURL;
-
-      // embedMainImageURL greater than 2040 characters
-      const payload2 = {...payloadEmbed};
-      payload2.responses[0].embedMainImageURL = `http://www.google.com/${new Array(2042).join('a')}`;
-
-      // embedMainImageURL an invalid URL pattern
-      const payload3 = {...payloadEmbed};
-      payload2.responses[0].embedMainImageURL = "invalidurl";
-
-      // Ensure an empty embedMainImageURL property is valid
-      const payload4 = {...payloadEmbed};
-      payload4.responses[0].embedMainImageURL = "";
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-      const res4 = await exec(true, true, payload4);
-      
+      delete payloadEmbed.responses[0].embedMainImageURL;
+      const res1 = await exec(true, true, payloadEmbed);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Main image url property is required");
+
+      // embedMainImageURL greater than 2040 characters
+      payloadEmbed.responses[0].embedMainImageURL = `http://www.google.com/${new Array(2042).join('a')}`;
+      const res2 = await exec(true, true, payloadEmbed);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Urls cannot be greater than 2040 characters");
+
+      // embedMainImageURL an invalid URL pattern
+      payloadEmbed.responses[0].embedMainImageURL = "invalidurl";
+      const res3 = await exec(true, true, payloadEmbed);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("Urls must be valid and well formed (http or https)");
+
+      // Ensure an empty embedMainImageURL property is valid
+      payloadEmbed.responses[0].embedMainImageURL = "";
+      const res4 = await exec(true, true, payloadEmbed);
       expect(res4.status).toBe(200);
+
     });
 
     // While responseType = embed
     it('should return 400 if provided embedDescription is not valid', async () => {
       // missing embedDescription property
-      const payload1 = {...payloadEmbed};
-      delete payload1.responses[0].embedDescription;
-
-      // ensure embedDescription property is valid
-      const payload2 = {...payloadEmbed};
-      payload2.responses[0].embedDescription = "";
-
-      // embedDescription greater than 3000 characters
-      const payload3 = {...payloadEmbed};
-      payload3.responses[0].embedDescription = new Array(3002).join('a');
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-
+      delete payloadEmbed.responses[0].embedDescription;
+      const res1 = await exec(true, true, payloadEmbed);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Description property is required");
+
+      // ensure embedDescription property is valid
+      payloadEmbed.responses[0].embedDescription = "";
+      const res2 = await exec(true, true, payloadEmbed);
       expect(res2.status).toBe(200);
+      
+      // embedDescription greater than 3000 characters
+      payloadEmbed.responses[0].embedDescription = new Array(3002).join('a');
+      const res3 = await exec(true, true, payloadEmbed);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("Description cannot be greater than 3000 characters");
+    
     });
 
     // While responseType = embed
     it('should return 400 if provided embedFields is not valid', async () => {
       // embedFields not an array
-      const payload1 = {...payloadEmbed};
-      payload1.responses[0].embedFields = "a string";
+      payloadEmbed.responses[0].embedFields = "a string";
+      const res1 = await exec(true, true, payloadEmbed);
+      expect(res1.status).toBe(400);
+      expect(res1.text).toBe("Embed fields must be an array");
 
-      // embedFields name missing value
-      const payload2 = {...payloadEmbed};
-      payload2.responses[0].embedFields = [
+      // embedFields name blank
+      payloadEmbed.responses[0].embedFields = [
         {
           name: "",
           value: "value",
           inline: true,
         }
       ];
+      const res2 = await exec(true, true, payloadEmbed);
+      expect(res2.status).toBe(400);
+      expect(res2.text).toBe("Name cannot be blank");
 
-      // embedFields value missing value
-      const payload3 = {...payloadEmbed};
-      payload3.responses[0].embedFields = [
+      // embedFields value blank
+      payloadEmbed.responses[0].embedFields = [
         {
           name: "name",
           value: "",
           inline: true,
         }
       ];
+      const res3 = await exec(true, true, payloadEmbed);
+      expect(res3.status).toBe(400);
+      expect(res3.text).toBe("Value cannot be blank");
 
       // embedFields missing inline
-      const payload4 = {...payloadEmbed};
-      payload4.responses[0].embedFields = [
+      payloadEmbed.responses[0].embedFields = [
         {
           name: "name",
           value: "value",
         }
       ];
+      const res4 = await exec(true, true, payloadEmbed);
+      expect(res4.status).toBe(400);
+      expect(res4.text).toBe("Inline is required");
+
 
       // embedFields inline not a boolean
-      const payload5 = {...payloadEmbed};
-      payload5.responses[0].embedFields = [
+      payloadEmbed.responses[0].embedFields = [
         {
           name: "name",
           value: "value",
           inline: "string",
         }
       ];
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-      const res4 = await exec(true, true, payload4);
-      const res5 = await exec(true, true, payload5);
-
-      expect(res1.status).toBe(400);
-      expect(res1.text).toBe("Embed fields must be an array");
-      expect(res2.status).toBe(400);
-      expect(res2.text).toBe("Name cannot be blank");
-      expect(res3.status).toBe(400);
-      expect(res3.text).toBe("Value cannot be blank");
-      expect(res4.status).toBe(400);
-      expect(res4.text).toBe("Inline is required");
+      const res5 = await exec(true, true, payloadEmbed);
       expect(res5.status).toBe(400);
       expect(res5.text).toBe("Inline must be a boolean");
 
@@ -575,66 +471,54 @@ describe('/api/custom-modules', () => {
     // While responseType = embed
     it('should return 400 if provided embedFooter is not valid', async () => {
       // missing embedFooter property 
-      const payload1 = {...payloadEmbed};
-      delete payload1.responses[0].embedFooter;
-
-      // embedFooter is greater than 500 characters
-      const payload2 = {...payloadEmbed};
-      payload2.responses[0].embedFooter = new Array(502).join('a');
-
-      const res1 = await exec(true, true, payload1)
-      const res2 = await exec(true, true, payload2);
-
+      delete payloadEmbed.responses[0].embedFooter;
+      const res1 = await exec(true, true, payloadEmbed);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Footer property is required");
+
+      // embedFooter is greater than 500 characters
+      payloadEmbed.responses[0].embedFooter = new Array(502).join('a');
+      const res2 = await exec(true, true, payloadEmbed);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Footer cannot be greater than 500 characters");
+
     });
 
     // While responseType = embed
     it('should return 400 if provided embedFooterThumbnailURL is not valid', async () => {
       // missing embedFooterThumbnailURL
-      const payload1 = {
-        ...payloadEmbed
-      }
-      delete payload1.responses[0].embedFooterThumbnailURL;
-
-      // embedFooterThumbnailURL greater than 2040 characters
-      const payload2 = {...payloadEmbed};
-      payload2.responses[0].embedFooterThumbnailURL = `http://www.google.com/${new Array(2042).join('a')}`;
-
-      // embedFooterThumbnailURL an invalid URL pattern
-      const payload3 = {...payloadEmbed};
-      payload3.responses[0].embedFooterThumbnailURL = "invalidurl";
-
-      // Ensure an empty embedFooterThumbnailURL property is valid
-      const payload4 = {...payloadEmbed};
-      payload4.responses[0].embedFooterThumbnailURL = "";
-
-      const res1 = await exec(true, true, payload1);
-      const res2 = await exec(true, true, payload2);
-      const res3 = await exec(true, true, payload3);
-      const res4 = await exec(true, true, payload4);
-      
+      delete payloadEmbed.responses[0].embedFooterThumbnailURL;
+      const res1 = await exec(true, true, payloadEmbed);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Footer thumbnail image url property is required");
+
+      // embedFooterThumbnailURL greater than 2040 characters
+      payloadEmbed.responses[0].embedFooterThumbnailURL = `http://www.google.com/${new Array(2042).join('a')}`;
+      const res2 = await exec(true, true, payloadEmbed);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Urls cannot be greater than 2040 characters");
+
+      // embedFooterThumbnailURL an invalid URL pattern
+      payloadEmbed.responses[0].embedFooterThumbnailURL = "invalidurl";
+      const res3 = await exec(true, true, payloadEmbed);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("Urls must be valid and well formed (http or https)");
+
+      // Ensure an empty embedFooterThumbnailURL property is valid
+      payloadEmbed.responses[0].embedFooterThumbnailURL = "";
+      const res4 = await exec(true, true, payloadEmbed);
       expect(res4.status).toBe(200);
+
     });
 
     // While responseType = embed
-    it('should return 400 if response is provided (while responseType is embed', async () => {
+    it('should return 400 if response is provided', async () => {
       // response is not blank
-      const payload1 = {...payloadEmbed};
-      payload1.responses[0].response = "not blank";
-
-      const res1 = await exec(true, true, payload1);
-
+      payloadEmbed.responses[0].response = "not blank";
+      const res1 = await exec(true, true, payloadEmbed);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Response must be blank");
+
     });
 
     it('should return 200 if random-response addition is successful', async () => {
@@ -644,7 +528,7 @@ describe('/api/custom-modules', () => {
       expect(res.status).toBe(200);
       expect(res.body.commandModules.length).toBe(2); // Ensure that commandModules grew by 1
       expect(res2.status).toBe(200);
-      expect(res2.body.commandModules.length).toBe(3);      
+      expect(res2.body.commandModules.length).toBe(3);
     });
   });
 });
