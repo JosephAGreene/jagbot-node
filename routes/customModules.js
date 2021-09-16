@@ -1,9 +1,10 @@
 const auth = require("../middleware/auth");
 const validate = require("../middleware/validate");
 const { Bot } = require("../models/bot");
-const { SingleResponse, addSingle, updateSingle } = require("../models/singleResponse");
+const { SingleResponse } = require("../models/singleResponse");
 const { OptionedResponse, addOptioned, updateOptioned } = require("../models/optionedResponse");
 const { RandomResponse, addRandom, updateRandom } = require("../models/randomResponse");
+const {addSingle, updateSingle} = require("../validators/customModules");
 
 const mongoose = require('mongoose');
 const express = require("express");
@@ -29,7 +30,7 @@ router.delete("/", async (req, res) => {
   res.send(bot);
 });
 
-router.post("/single-response", async (req, res) => {
+router.post("/single-response", [auth, validate(addSingle)],async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If bot doesn't exist, return 404
