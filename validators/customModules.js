@@ -164,7 +164,7 @@ const baseResponseSchema = {
 }
 
 function addSingle(body) {
-  const addSingleSchema = Joi.object({ 
+  const addSingleSchema = Joi.object({
     ...baseCommandModuleSchema,
     ...baseResponseSchema,
   });
@@ -174,10 +174,10 @@ function addSingle(body) {
 function updateSingle(body) {
   const updateSingleSchema = Joi.object({
     moduleId: Joi.string().trim().required()
-    .messages({
-      "string.empty": 'Module ID cannot be blank',
-      "any.required": 'Module ID is required',
-    }),
+      .messages({
+        "string.empty": 'Module ID cannot be blank',
+        "any.required": 'Module ID is required',
+      }),
     ...baseCommandModuleSchema,
     ...baseResponseSchema,
   });
@@ -201,6 +201,29 @@ function addRandom(body) {
   return addRandomSchema.validate(body);
 }
 
+function updateRandom(body) {
+  const updateRandomSchema = Joi.object({
+    moduleId: Joi.string().trim().required()
+    .messages({
+      "string.empty": 'Module ID cannot be blank',
+      "any.required": 'Module ID is required',
+    }),
+    ...baseCommandModuleSchema,
+    responses: Joi.array().min(1).required().items(
+      Joi.object({
+        _id: Joi.string(),
+        ...baseResponseSchema,
+      }))
+      .messages({
+        "array.min": `At least one response is required`,
+        "array.base": 'Responses property must be an array',
+        "any.required": `Responses property is required`,
+      }),
+  });
+  return updateRandomSchema.validate(body);
+}
+
 exports.addSingle = addSingle;
 exports.updateSingle = updateSingle;
 exports.addRandom = addRandom;
+exports.updateRandom = updateRandom;
