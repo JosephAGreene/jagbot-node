@@ -25,6 +25,8 @@ describe('/api/custom-modules', () => {
       discordId: "testValue",
     });
 
+    userId = user._id;
+
     // Setting active to false in order to avoid creating errors from 
     // calling discord operations after jest is torn down.
     let bot = new Bot({
@@ -38,6 +40,30 @@ describe('/api/custom-modules', () => {
       commandModules: [
         {
           _id: moduleId,
+          type: "random-response",
+          command: "command",
+          description: "This is a fake module to test against",
+          responseLocation: "server",
+          responses: [
+            {
+              _id: "12912832",
+              responseLocation: "server",
+              responseType: "basic",
+              response: "This is a response",
+              embedTitle: "",
+              embedLinkURL: "",
+              embedColor: "",
+              embedThumbnailURL: "",
+              embedMainImageURL: "",
+              embedDescription: "",
+              embedFields: [],
+              embedFooter: "",
+              embedFooterThumbnailURL: "",
+            },
+          ],
+        },
+        {
+          _id: new mongoose.mongo.ObjectId(),
           type: "random-response",
           command: "duplicate",
           description: "This is a fake module to test against",
@@ -67,7 +93,6 @@ describe('/api/custom-modules', () => {
 
     await user.save();
     await bot.save();
-    userId = user._id;
     botId = bot._id;
 
     payloadBasic = {
@@ -141,48 +166,48 @@ describe('/api/custom-modules', () => {
   describe('POST /random-response', () => {
     it('should return 401 if credentials are not provided', async () => {
       const res = await exec(false, true, payloadBasic);
-
       expect(res.status).toBe(401);
+
     });
 
     it('should return 401 if credentials provided do not match the owner the bot', async () => {
       const res = await exec(true, false, payloadBasic);
-
       expect(res.status).toBe(401);
+
     });
 
     it('should return 404 if the bot does not exist', async () => {
       payloadBasic.botId = new mongoose.mongo.ObjectId();
 
       const res = await exec(true, true, payloadBasic);
-
       expect(res.status).toBe(404);
+
     });
 
     it('should return 404 if the module does not exist', async () => {
       payloadBasic.moduleId = new mongoose.mongo.ObjectId();
 
-      const res = await exec(true, true, payload);
-
+      const res = await exec(true, true, payloadBasic);
       expect(res.status).toBe(404);
       expect(res.text).toBe("Module does not exist");
+
     });
 
     it('should return 409 if a duplicate command is sent', async () => {
       payloadBasic.command = "duplicate";
 
       const res = await exec(true, true, payloadBasic);
-
       expect(res.status).toBe(409);
+
     });
 
     it('should return 400 if bot id is not provided', async () => {
       delete payloadBasic.botId;
 
       const res = await exec(true, true, payloadBasic);
-
       expect(res.status).toBe(400);
       expect(res.text).toBe("Bot ID is required");
+
     });
 
     it('should return 400 if module id is not valid', async () => {
@@ -555,9 +580,9 @@ describe('/api/custom-modules', () => {
       const res2 = await exec(true, true, payloadEmbed);
 
       expect(res.status).toBe(200);
-      expect(res.body.commandModules.length).toBe(2); // Ensure that commandModules grew by 1
+      expect(res.body.commandModules.length).toBe(2); // Ensure that commandModules didn't grow
       expect(res2.status).toBe(200);
-      expect(res2.body.commandModules.length).toBe(3);
+      expect(res2.body.commandModules.length).toBe(2);
     });
   });
 });
