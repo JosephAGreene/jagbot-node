@@ -43,7 +43,6 @@ describe('/api/custom-modules', () => {
             {
               _id: "12912832",
               keyword: "duplicateKeyword",
-              responseLocation: "server",
               responseType: "basic",
               response: "This is a response",
               embedTitle: "",
@@ -171,7 +170,6 @@ describe('/api/custom-modules', () => {
         {
           _id: "12912832",
           keyword: "duplicate",
-          responseLocation: "server",
           responseType: "basic",
           response: "This is a response with a duplicate keyword",
           embedTitle: "",
@@ -187,7 +185,6 @@ describe('/api/custom-modules', () => {
         {
           _id: "12914132",
           keyword: "duplicate",
-          responseLocation: "server",
           responseType: "basic",
           response: "This is a response with a duplicate keyword",
           embedTitle: "",
@@ -210,7 +207,6 @@ describe('/api/custom-modules', () => {
         {
           _id: "12912832",
           keyword: "DUPLICATE",
-          responseLocation: "server",
           responseType: "basic",
           response: "This is a response with a duplicate keyword",
           embedTitle: "",
@@ -226,7 +222,6 @@ describe('/api/custom-modules', () => {
         {
           _id: "12914132",
           keyword: "duplicate",
-          responseLocation: "server",
           responseType: "basic",
           response: "This is a response with a duplicate keyword",
           embedTitle: "",
@@ -347,7 +342,7 @@ describe('/api/custom-modules', () => {
       expect(res2.text).toBe("Keyword cannot be blank");
 
       // keyword is greater than 30 characters
-      payloadBasic.options[0].keyword = new Array((32).join('a'));
+      payloadBasic.options[0].keyword = new Array(32).join('a');
       const res3 = await exec(true, true, payloadBasic);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("Keyword cannot be greater than 30 characters");
