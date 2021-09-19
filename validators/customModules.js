@@ -253,8 +253,44 @@ function addOptioned(body) {
   return addOptionedSchema.validate(body);
 }
 
+function updateOptioned(body) {
+  const updateOptionedSchema = Joi.object({
+    ...baseCommandModuleSchema,
+    moduleId: Joi.string().trim().required()
+    .messages({
+      "string.empty": 'Module ID cannot be blank',
+      "any.required": 'Module ID is required',
+    }),
+    options: Joi.array().min(1).required().items(
+      Joi.object({
+        _id: Joi.string(),
+        keyword: Joi.string().trim().max(30).required()
+        .custom((value, helper) => {
+          const wordCount = value.slice(0).trim().split(' ').length;
+          if (wordCount > 1) {
+            return helper.message('Keyword must be a single word');
+          }
+          return value;
+        })
+        .messages({
+          "string.empty": 'Keyword cannot be blank',
+          "string.max": 'Keyword cannot be greater than 30 characters',
+          "any.required": 'Keyword is required',
+        }),
+        ...baseResponseSchema,
+      }))
+      .messages({
+        "array.min": `At least one response is required`,
+        "array.base": 'Responses property must be an array',
+        "any.required": `Responses property is required`,
+      }),
+  });
+  return updateOptionedSchema.validate(body);
+}
+
 exports.addSingle = addSingle;
 exports.updateSingle = updateSingle;
 exports.addRandom = addRandom;
 exports.updateRandom = updateRandom;
 exports.addOptioned = addOptioned;
+exports.updateOptioned = updateOptioned;
