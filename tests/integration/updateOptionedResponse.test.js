@@ -193,7 +193,7 @@ describe('/api/custom-modules', () => {
       expect(res1.text).toBe("Module ID is required");
 
       // moduleId value is blank
-      payloadBasic.modulesId = "";
+      payloadBasic.moduleId = "";
       const res2 = await exec(true, true, payloadBasic);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Module ID cannot be blank");
@@ -684,9 +684,9 @@ describe('/api/custom-modules', () => {
       const res2 = await exec(true, true, payloadEmbed);
 
       expect(res.status).toBe(200);
-      expect(res.body.commandModules.length).toBe(2); // Ensure that commandModules grew by 1
+      expect(res.body.commandModules.length).toBe(2); // Ensure that optiones array didn't grow
       expect(res2.status).toBe(200);
-      expect(res2.body.commandModules.length).toBe(3);
+      expect(res2.body.commandModules.length).toBe(2);
     });
   });
 });
