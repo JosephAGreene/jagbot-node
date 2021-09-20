@@ -9,7 +9,7 @@ const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { initiateBot } = require("../discordBot/botClientUtils");
 
 router.post("/word-filter", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body.botId);
 
   const newWordFilter = new WordFilter({
     enabled: req.body.enabled,
@@ -36,7 +36,7 @@ router.post("/word-filter", async (req, res) => {
 });
 
 router.post("/invite-filter", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body.botId);
 
   const newInviteFilter = new InviteFilter({
     enabled: req.body.enabled,
@@ -62,7 +62,7 @@ router.post("/invite-filter", async (req, res) => {
 });
 
 router.post("/masscaps-filter", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body.botId);
 
   const newMassCapsFilter = new MassCapsFilter({
     enabled: req.body.enabled,
@@ -88,7 +88,7 @@ router.post("/masscaps-filter", async (req, res) => {
 });
 
 router.post("/massmentions-filter", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
+  const bot = await Bot.findById(req.body.botId);
 
   const newMassMentionsFilter = new MassMentionsFilter({
     enabled: req.body.enabled,
