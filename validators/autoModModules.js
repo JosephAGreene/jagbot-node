@@ -47,9 +47,9 @@ const baseAutoModSchema = {
   response: Joi.when('warn', {
     is: Joi.boolean().valid(true),
     then: Joi.when('enabled', {
-      is:  Joi.boolean().valid(true),
+      is: Joi.boolean().valid(true),
       then: Joi.string().trim().max(1000).required(),
-    }), 
+    }),
     otherwise: Joi.string().allow('').max(1000).required(),
   })
     .messages({
@@ -84,7 +84,7 @@ function mentionsValid(body) {
   const massMentionsFilterSchema = Joi.object({
     ...baseAutoModSchema,
     limit: Joi.when('enabled', {
-      is: Joi.boolean().valid(true), 
+      is: Joi.boolean().valid(true),
       then: Joi.number().integer().min(3).max(20).required(),
       otherwise: Joi.number().integer().allow(null, '').min(3).max(20).required()
     })
@@ -98,6 +98,26 @@ function mentionsValid(body) {
   return massMentionsFilterSchema.validate(body);
 }
 
+function wordValid(body) {
+  const wordFilterSchema = Joi.object({
+    ...baseAutoModSchema,
+    triggerWords: Joi.when('enabled', {
+      is: Joi.boolean().valid(true),
+      then: Joi.array().min(1).max(50).required(),
+      otherwise: Joi.array().max(50).required(),
+    })
+      .messages({
+        "any.required": "Trigger words property is required",
+        "array.required": "Trigger words property is required",
+        "array.base": "Trigger words must be an array",
+        "array.min": "At least 1 trigger word is required when enabled is true",
+        "array.max": "Trigger words cannot exceed 50",
+      }),
+  });
+  return wordFilterSchema.validate(body);
+}
+
 exports.inviteValid = inviteValid;
 exports.capsValid = capsValid;
 exports.mentionsValid = mentionsValid;
+exports.wordValid = wordValid;

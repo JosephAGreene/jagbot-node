@@ -8,10 +8,18 @@ const { InviteFilter } = require("../models/inviteFilter");
 const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { initiateBot } = require("../discordBot/botClientUtils");
-const { inviteValid, capsValid, mentionsValid } = require("../validators/autoModModules");
+const { inviteValid, capsValid, mentionsValid, wordValid } = require("../validators/autoModModules");
 
-router.post("/word-filter", async (req, res) => {
+router.post("/word-filter", [auth, validate(wordValid)], async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
+
+  // If bot doesn't exist, return 404
+  if (!bot) return res.sendStatus(404);
+
+  // If bot doesn't belong to user, return 401
+  if (String(bot.owner) !== String(req.user._id)) {
+    return res.sendStatus(401);
+  }
 
   const newWordFilter = new WordFilter({
     enabled: req.body.enabled,
