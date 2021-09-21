@@ -8,7 +8,7 @@ const { InviteFilter } = require("../../models/inviteFilter");
 const { MassCapsFilter } = require("../../models/massCapsFilter");
 const { MassMentionsFilter } = require("../../models/massMentionsFilter");
 
-describe('/api/custom-modules', () => {
+describe('/api/automod-modules', () => {
   let server;
   let payload;
   let userId;

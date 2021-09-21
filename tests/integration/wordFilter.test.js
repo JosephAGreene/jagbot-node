@@ -8,7 +8,7 @@ const { InviteFilter } = require("../../models/inviteFilter");
 const { MassCapsFilter } = require("../../models/massCapsFilter");
 const { MassMentionsFilter } = require("../../models/massMentionsFilter");
 
-describe('/api/custom-modules', () => {
+describe('/api/automod-modules', () => {
   let server;
   let payload;
   let userId;
@@ -158,7 +158,7 @@ describe('/api/custom-modules', () => {
       payload.triggerWords = "a string";
       const res2 = await exec(true, true, payload);
       expect(res2.status).toBe(400);
-      expect(res2.text).toBe("Tigger words must be an array");
+      expect(res2.text).toBe("Trigger words must be an array");
 
       // triggerWords is greater than 50
       const words = [];
@@ -168,10 +168,11 @@ describe('/api/custom-modules', () => {
       payload.triggerWords = words;
       const res3 = await exec(true, true, payload);
       expect(res3.status).toBe(400);
-      expect(res3.text).toBe("Trigger words cannot be greater than 50");
+      expect(res3.text).toBe("Trigger words cannot exceed 50");
 
       // triggerWords is empty while enabled is true
       payload.enabled = true;
+      payload.delete = true;
       payload.triggerWords = [];
       const res4 = await exec(true, true, payload);
       expect(res4.status).toBe(400);
