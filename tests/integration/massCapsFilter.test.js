@@ -82,6 +82,8 @@ describe('/api/custom-modules', () => {
     await server.close();
   });
 
+  // Currently, masscaps is decided by a set percentage, if that changes to
+  // something the user can decide, more tests will be required
   describe('POST /masscaps-filter', () => {
     it('should return 401 if credentials are not provided', async () => {
       const res = await exec(false, true, payload);
