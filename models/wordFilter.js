@@ -34,11 +34,11 @@ const wordFilterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  responseLocation: {
+  response: {
     type: String,
     trim: true
   }, 
-  location: {
+  responseLocation: {
     type: String,
     trim: true,
     default: "server"

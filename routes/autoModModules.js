@@ -20,7 +20,7 @@ router.post("/word-filter", async (req, res) => {
     delete: req.body.delete,
     warn: req.body.warn,
     response: req.body.response,
-    location: req.body.location,
+    responseLocation: req.body.responseLocation,
   });
 
   for (let i = 0; i < bot.scanModules.length; i++) {
