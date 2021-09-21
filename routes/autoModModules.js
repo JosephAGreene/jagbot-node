@@ -8,7 +8,7 @@ const { InviteFilter } = require("../models/inviteFilter");
 const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { initiateBot } = require("../discordBot/botClientUtils");
-const { inviteValid, capsValid } = require("../validators/autoModModules");
+const { inviteValid, capsValid, mentionsValid } = require("../validators/autoModModules");
 
 router.post("/word-filter", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
@@ -105,12 +105,20 @@ router.post("/masscaps-filter", [auth, validate(capsValid)], async (req, res) =>
   res.send(bot);
 });
 
-router.post("/massmentions-filter", async (req, res) => {
+router.post("/massmentions-filter", [auth, validate(mentionsValid)], async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
+
+  // If bot doesn't exist, return 404
+  if (!bot) return res.sendStatus(404);
+
+  // If bot doesn't belong to user, return 401
+  if (String(bot.owner) !== String(req.user._id)) {
+    return res.sendStatus(401);
+  }
 
   const newMassMentionsFilter = new MassMentionsFilter({
     enabled: req.body.enabled,
-    limit: req.body.limit,
+    limit: (req.body.limit ? req.body.limit : 5),
     ignoredRoles: req.body.ignoredRoles,
     delete: req.body.delete,
     warn: req.body.warn,

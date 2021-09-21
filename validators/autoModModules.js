@@ -80,5 +80,24 @@ function capsValid(body) {
   return massCapsFilterSchema.validate(body);
 }
 
+function mentionsValid(body) {
+  const massMentionsFilterSchema = Joi.object({
+    ...baseAutoModSchema,
+    limit: Joi.when('enabled', {
+      is: Joi.boolean().valid(true), 
+      then: Joi.number().integer().min(3).max(20).required(),
+      otherwise: Joi.number().integer().allow(null, '').min(3).max(20).required()
+    })
+      .messages({
+        "number.min": "Limit must be at least 3",
+        "number.max": "Limit cannot be greater than 20",
+        "number.base": "Limit must be a number",
+        "any.required": "Limit is required",
+      }),
+  });
+  return massMentionsFilterSchema.validate(body);
+}
+
 exports.inviteValid = inviteValid;
 exports.capsValid = capsValid;
+exports.mentionsValid = mentionsValid;
