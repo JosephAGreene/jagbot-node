@@ -1,12 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
+const validate = require("../middleware/validate");
 const { Bot } = require("../models/bot");
 const { WordFilter } = require("../models/wordFilter");
 const { InviteFilter } = require("../models/inviteFilter");
 const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { initiateBot } = require("../discordBot/botClientUtils");
+const { inviteValid } = require("../validators/autoModModules");
 
 router.post("/word-filter", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
@@ -35,8 +37,16 @@ router.post("/word-filter", async (req, res) => {
   res.send(bot);
 });
 
-router.post("/invite-filter", async (req, res) => {
+router.post("/invite-filter", [auth, validate(inviteValid)], async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
+
+  // If bot doesn't exist, return 404
+  if (!bot) return res.sendStatus(404);
+
+  // If bot doesn't belong to user, return 401
+  if (String(bot.owner) !== String(req.user._id)) { 
+    return res.sendStatus(401);
+  }
 
   const newInviteFilter = new InviteFilter({
     enabled: req.body.enabled,
@@ -44,7 +54,7 @@ router.post("/invite-filter", async (req, res) => {
     delete: req.body.delete,
     warn: req.body.warn,
     response: req.body.response,
-    location: req.body.location,
+    responseLocation: req.body.responseLocation,
   });
 
   for (let i = 0; i < bot.scanModules.length; i++) {
@@ -70,7 +80,7 @@ router.post("/masscaps-filter", async (req, res) => {
     delete: req.body.delete,
     warn: req.body.warn,
     response: req.body.response,
-    location: req.body.location,
+    responseLocation: req.body.responseLocation,
   });
 
   for (let i = 0; i < bot.scanModules.length; i++) {
@@ -97,7 +107,7 @@ router.post("/massmentions-filter", async (req, res) => {
     delete: req.body.delete,
     warn: req.body.warn,
     response: req.body.response,
-    location: req.body.location,
+    responseLocation: req.body.responseLocation,
   });
 
   for (let i = 0; i < bot.scanModules.length; i++) {

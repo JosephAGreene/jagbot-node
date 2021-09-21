@@ -34,7 +34,7 @@ const wordFilterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  response: {
+  responseLocation: {
     type: String,
     trim: true
   }, 

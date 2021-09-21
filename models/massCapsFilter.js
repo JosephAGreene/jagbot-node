@@ -33,7 +33,7 @@ const massCapsFilterSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  location: {
+  responseLocation: {
     type: String,
     trim: true,
     default: "server"

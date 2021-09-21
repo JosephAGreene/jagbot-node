@@ -56,7 +56,7 @@ describe('/api/custom-modules', () => {
       enabled: false,
       delete: false,
       warn: false,
-      location: "server",
+      responseLocation: "server",
       response: "response",
       ignoredRoles: [],
     }
@@ -121,7 +121,7 @@ describe('/api/custom-modules', () => {
     it('should return 400 if both delete and warn are false when enabled is true', async () => {
       payload = {
         ...payload,
-        enabaled: true,
+        enabled: true,
         delete: false,
         warn: false,
       }
@@ -175,18 +175,18 @@ describe('/api/custom-modules', () => {
       expect(res2.text).toBe("Warn must be either true or false");
     });
 
-    it('should return 400 if location property is not valid', async () => {
+    it('should return 400 if response location property is not valid', async () => {
       // location property does not exist
-      delete payload.location;
+      delete payload.responseLocation;
       const res1 = await exec(true, true, payload);
       expect(res1.status).toBe(400);
-      expect(res1.text).toBe("Location is required");
+      expect(res1.text).toBe("Response location is required");
 
       // Location property is not "server" or "directmessage"
-      payload.location = "invalid";
+      payload.responseLocation = "invalid";
       const res2 = await exec(true, true, payload);
       expect(res2.status).toBe(400);
-      expect(res2.text).toBe('Location must be either "server" or "directmessage"');
+      expect(res2.text).toBe('Response location must be either "server" or "directmessage"');
 
     });
     
@@ -230,22 +230,22 @@ describe('/api/custom-modules', () => {
 
     });
 
-    it('should return 400 if ignoreRoles is not valid', async () => {
+    it('should return 400 if ignoredRoles is not valid', async () => {
       // ignoreRoles property does not exist
       delete payload.ignoredRoles;
-      const res1 = exec(true, true, payload);
+      const res1 = await exec(true, true, payload);
       expect(res1.status).toBe(400);
       expect(res1.text).toBe("Ignored roles is required");
 
       // ignoredRoles is not an array
       payload.ignoredRoles = "a string";
-      const res2 = exec(true, true, payload);
+      const res2 = await exec(true, true, payload);
       expect(res2.status).toBe(400);
       expect(res2.text).toBe("Ignored roles must be an array");
 
       // ignoredRoles is greater than 10
       payload.ignoredRoles = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"];
-      const res3 = exec(true, true, payload);
+      const res3 = await exec(true, true, payload);
       expect(res3.status).toBe(400);
       expect(res3.text).toBe("Ignored roles cannot exceed 10");
 
@@ -260,7 +260,7 @@ describe('/api/custom-modules', () => {
         enabled: true,
         delete: true,
         warn: true,
-        location: "server",
+        responseLocation: "server",
         response: "response",
         ignoredRoles: ["role1", "role2", "role3"],
       }
