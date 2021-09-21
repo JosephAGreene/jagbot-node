@@ -89,7 +89,7 @@ async function initiateBot(bot) {
       if (result.deleteCheck) {
         message.delete();
         if (result.warn) {
-          (result.location === "server"
+          (result.responseLocation === "server"
             ? message.channel.send(result.response.toString())
             : message.author.send(result.response.toString())
           );
@@ -97,13 +97,13 @@ async function initiateBot(bot) {
         return;
       }
 
-      if (result && result.response) { responseArray.push(result); }
+      if (result && result.responseLocation) { responseArray.push(result); }
     }
 
     let executeCheck = false;
     for (let i = 0; i < responseArray.length; i++) {
       executeCheck = true;
-      (responseArray[i].location === "server"
+      (responseArray[i].responseLocation === "server"
         ? message.channel.send(responseArray[i].response.toString())
         : message.author.send(responseArray[i].response.toString())
       );

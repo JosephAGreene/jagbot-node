@@ -42,7 +42,7 @@ module.exports = {
           message.channel.send(err.message);
         }
       }
-      return {deleteCheck: deleteCheck, warn: botModule.warn, response: response, location: botModule.location};
+      return {deleteCheck: deleteCheck, warn: botModule.warn, response: response, responseLocation: botModule.responseLocation};
     }
     return false;
   },
