@@ -73,4 +73,12 @@ function inviteValid(body) {
   return inviteFilterSchema.validate(body);
 }
 
+function capsValid(body) {
+  const massCapsFilterSchema = Joi.object({
+    ...baseAutoModSchema,
+  });
+  return massCapsFilterSchema.validate(body);
+}
+
 exports.inviteValid = inviteValid;
+exports.capsValid = capsValid;

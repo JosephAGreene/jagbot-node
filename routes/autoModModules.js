@@ -8,7 +8,7 @@ const { InviteFilter } = require("../models/inviteFilter");
 const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { initiateBot } = require("../discordBot/botClientUtils");
-const { inviteValid } = require("../validators/autoModModules");
+const { inviteValid, capsValid } = require("../validators/autoModModules");
 
 router.post("/word-filter", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
@@ -44,7 +44,7 @@ router.post("/invite-filter", [auth, validate(inviteValid)], async (req, res) =>
   if (!bot) return res.sendStatus(404);
 
   // If bot doesn't belong to user, return 401
-  if (String(bot.owner) !== String(req.user._id)) { 
+  if (String(bot.owner) !== String(req.user._id)) {
     return res.sendStatus(401);
   }
 
@@ -71,8 +71,16 @@ router.post("/invite-filter", [auth, validate(inviteValid)], async (req, res) =>
   res.send(bot);
 });
 
-router.post("/masscaps-filter", async (req, res) => {
+router.post("/masscaps-filter", [auth, validate(capsValid)], async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
+
+  // If bot doesn't exist, return 404
+  if (!bot) return res.sendStatus(404);
+
+  // If bot doesn't belong to user, return 401
+  if (String(bot.owner) !== String(req.user._id)) {
+    return res.sendStatus(401);
+  }
 
   const newMassCapsFilter = new MassCapsFilter({
     enabled: req.body.enabled,
