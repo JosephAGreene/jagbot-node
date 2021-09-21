@@ -148,11 +148,14 @@ describe('/api/custom-modules', () => {
     });
 
     it('should return 400 if limit property is not valid', async () => {
+      payload.enabled = true;
+      payload.delete = true;
+
       // limit property does not exist
       delete payload.limit;
       const res1 = await exec(true, true, payload);
       expect(res1.status).toBe(400);
-      expect(res1.text).toBe("Limit it required");
+      expect(res1.text).toBe("Limit is required");
 
       // limit property is not a number
       payload.limit = "a string";
@@ -171,6 +174,21 @@ describe('/api/custom-modules', () => {
       const res4 = await exec(true, true, payload);
       expect(res4.status).toBe(400);
       expect(res4.text).toBe("Limit cannot be greater than 20");
+
+      // "" and Null is allowed when enabled is false
+      payload.enabled = false;
+
+      payload.limit = null;
+      const res5 = await exec(true, true, payload);
+      expect(res5.status).toBe(200);
+      const res5Module = res5.body.scanModules.find((module) => module.type === "massmentions-filter");
+      expect(res5Module.limit).toBe(5); // default limit
+
+      payload.limit = "";
+      const res6 = await exec(true, true, payload);
+      expect(res6.status).toBe(200);
+      const res6Module = res6.body.scanModules.find((module) => module.type === "massmentions-filter");
+      expect(res6Module.limit).toBe(5); // default limit
 
     });
 
@@ -286,6 +304,7 @@ describe('/api/custom-modules', () => {
       payload = {
         botId: botId,
         enabled: true,
+        limit: 3,
         delete: true,
         warn: true,
         responseLocation: "server",
