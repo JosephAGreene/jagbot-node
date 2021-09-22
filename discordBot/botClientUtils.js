@@ -1,3 +1,4 @@
+const c = require('config');
 const Discord = require('discord.js');
 const fs = require('fs');
 const commandFiles = fs.readdirSync("discordBot/commandModules").filter(file => file.endsWith('.js'));
@@ -129,6 +130,21 @@ async function initiateBot(bot) {
   }
 
   botClients[id].on('messageCreate', message);
+
+  // const join = async (member) => {
+  //   const channelId = "854945160010137602";
+  //   const textChannels = []; 
+  //   member.guild.channels.cache.map((channel) => {
+  //     if(channel.type === "GUILD_TEXT") {
+  //       textChannels.push(channel.name);
+  //     }
+  //   });
+
+  //   console.log(textChannels);
+  //   member.guild.channels.cache.get(channelId).send('test');
+  // }
+
+  // botClients[id].on('guildMemberAdd', join);
 }
 
 // Attempts to login with given bot token
@@ -197,6 +213,46 @@ async function returnRoles(id, token) {
   }
 
   return sortedRoles;
+}
+
+async function returnCategorizedChannels(id, token) {
+  const channelArray = [];
+
+  if (returnStatus(id)) {
+    // Fetch guilds with await to gaurantee cache accuracy 
+    await botClients[id].guilds.fetch();
+    botClients[id].guilds.cache.forEach((guild) => {
+      let channelObject = { server: { id: guild.id, name: guild.name }, channels: [] };
+      guild.channels.cache.map((channel) => {
+        if (channel.type === "GUILD_TEXT") {
+          channelObject.channels.push({ id: channel.id, name: channel.name });
+        }
+      });
+      channelArray.push(channelObject);
+    });
+  } else {
+    const bot = new Discord.Client({ intents: Discord.Intents.FLAGS.GUILDS });
+    try {
+      await bot.login(token);
+      // Fetch guilds with await to gaurantee cache accuracy 
+      await bot.guilds.fetch();
+      bot.guilds.cache.forEach((guild) => {
+        let channelObject = { server: { id: guild.id, name: guild.name }, channels: [] };
+        guild.channels.cache.map((channel) => {
+          if (channel.type === "GUILD_TEXT") {
+            channelObject.channels.push({ id: channel.id, name: channel.name });
+          }
+        });
+        channelArray.push(channelObject);
+      });
+    }
+    catch (err) {
+      bot.destroy();
+      return console.log(err.name);
+    }
+    bot.destroy();
+  }
+  return channelArray;
 }
 
 // Convert discord ids into avatar URL
