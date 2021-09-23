@@ -50,6 +50,7 @@ const botSchema = new mongoose.Schema({
   ],
   scanModules: [], // Scan Modules are modules that scan and execute on incoming messages if conditions are met. 
   commandModules: [], // Command Modules require a command to induce execution
+  announcementModules: [], // Announcement Modules execute on join/leave event listeners
 });
   
 const Bot = mongoose.model('Bot', botSchema);
