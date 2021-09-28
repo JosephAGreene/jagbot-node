@@ -8,7 +8,7 @@ const { InviteFilter } = require("../models/inviteFilter");
 const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { SteamNews } = require("../models/steamNews");
-const { initiateBot, verifyBotWithDiscord, returnRoles, returnBotInfo } = require("../discordBot/botClientUtils");
+const { initiateBot, verifyBotWithDiscord, returnRoles, returnChannels, returnBotInfo } = require("../discordBot/botClientUtils");
 
 // Get summary information for all bots that
 // belong to a single user.
@@ -95,6 +95,14 @@ router.post("/server-roles", async (req, res) => {
   const serverRoles = await returnRoles(bot._id, bot.botToken);
 
   res.send(serverRoles);
+});
+
+router.post("/bot-channels", async (req, res) => {
+  const bot = await Bot.findById(req.body.botId);
+
+  const botChannels = await returnChannels(bot._id, bot.botToken);
+
+  res.send(botChannels);
 });
 
 
