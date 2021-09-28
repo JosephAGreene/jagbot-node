@@ -145,6 +145,11 @@ async function initiateBot(bot) {
   // }
 
   // botClients[id].on('guildMemberAdd', join);
+
+  const leave = async (member) => {
+    console.log(member);
+  }
+  botClients[id].on('guildMemberRemove', leave);
 }
 
 // Attempts to login with given bot token
@@ -215,20 +220,21 @@ async function returnRoles(id, token) {
   return sortedRoles;
 }
 
-async function returnCategorizedChannels(id, token) {
+
+// Return an array of objects containing Server Name/ID and Channel Name/ID for
+// all servers the bot is currently a member of
+async function returnChannels(id, token) {
   const channelArray = [];
 
   if (returnStatus(id)) {
     // Fetch guilds with await to gaurantee cache accuracy 
     await botClients[id].guilds.fetch();
     botClients[id].guilds.cache.forEach((guild) => {
-      let channelObject = { server: { id: guild.id, name: guild.name }, channels: [] };
       guild.channels.cache.map((channel) => {
         if (channel.type === "GUILD_TEXT") {
-          channelObject.channels.push({ id: channel.id, name: channel.name });
+          channelArray.push({serverName: guild.name, serverId: guild.id, channelName: channel.name, channelId: channel.id});
         }
       });
-      channelArray.push(channelObject);
     });
   } else {
     const bot = new Discord.Client({ intents: Discord.Intents.FLAGS.GUILDS });
@@ -237,13 +243,11 @@ async function returnCategorizedChannels(id, token) {
       // Fetch guilds with await to gaurantee cache accuracy 
       await bot.guilds.fetch();
       bot.guilds.cache.forEach((guild) => {
-        let channelObject = { server: { id: guild.id, name: guild.name }, channels: [] };
         guild.channels.cache.map((channel) => {
           if (channel.type === "GUILD_TEXT") {
-            channelObject.channels.push({ id: channel.id, name: channel.name });
+            channelArray.push({serverName: guild.name, serverId: guild.id, channelName: channel.name, channelId: channel.id});
           }
         });
-        channelArray.push(channelObject);
       });
     }
     catch (err) {
@@ -292,6 +296,7 @@ async function returnBotInfo(id, botId, token) {
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
 exports.verifyBotWithDiscord = verifyBotWithDiscord;
+exports.returnChannels = returnChannels;
 exports.returnRoles = returnRoles;
 exports.returnStatus = returnStatus;
 exports.returnBotInfo = returnBotInfo;
