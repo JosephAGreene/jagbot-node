@@ -47,6 +47,7 @@ router.post("/checkout-bot", async (req, res) => {
   bot.set('avatarURL', req.body.avatarURL);
   bot.set('name', req.body.name);
   bot.set('serverRoles', await returnRoles(bot._id, bot.botToken));
+  bot.set('serverChannels', await returnChannels(bot._id, bot.botToken));
 
   bot.save();
 
