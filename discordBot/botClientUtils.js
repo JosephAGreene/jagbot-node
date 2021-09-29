@@ -131,25 +131,32 @@ async function initiateBot(bot) {
 
   botClients[id].on('messageCreate', message);
 
-  // const join = async (member) => {
-  //   const channelId = "854945160010137602";
-  //   const textChannels = []; 
-  //   member.guild.channels.cache.map((channel) => {
-  //     if(channel.type === "GUILD_TEXT") {
-  //       textChannels.push(channel.name);
-  //     }
-  //   });
+  const join = async (member) => {
+    const joinModule = require(`./announcementModules/joinAnnouncement.js`);
+    joinModule.execute(member, id);
+  }
 
-  //   console.log(textChannels);
-  //   member.guild.channels.cache.get(channelId).send('test');
+  // Add guildMemberAdd event listener if type "join"
+  // exists in announcementModules
+  let joinCheck = false;
+
+  for (let i = 0; i < bot.announcementModules.length; i++) {
+    if (bot.announcementModules[i].type === "join") {
+      joinCheck = true;
+      break;
+    }
+  }
+
+  if (joinCheck) {
+    botClients[id].on('guildMemberAdd', join);
+  }
+
+
+  // const leave = async (member) => {
+  //   console.log(member);
   // }
 
-  // botClients[id].on('guildMemberAdd', join);
-
-  const leave = async (member) => {
-    console.log(member);
-  }
-  botClients[id].on('guildMemberRemove', leave);
+  // botClients[id].on('guildMemberRemove', leave);
 }
 
 // Attempts to login with given bot token
@@ -175,6 +182,14 @@ async function verifyBotWithDiscord(token) {
   bot.destroy();
 
   return info;
+}
+
+// Return discord channel object
+async function returnChannelObject(clientId, channelId) {
+  // Fetch guilds with await to gaurantee cache accuracy 
+  await botClients[clientId].guilds.fetch();
+  const channel = botClients[clientId].channels.cache.get(channelId);
+  return channel;
 }
 
 // Return all roles from all servers the bot is a member of, 
@@ -232,7 +247,7 @@ async function returnChannels(id, token) {
     botClients[id].guilds.cache.forEach((guild) => {
       guild.channels.cache.map((channel) => {
         if (channel.type === "GUILD_TEXT") {
-          channelArray.push({serverName: guild.name, serverId: guild.id, channelName: channel.name, channelId: channel.id});
+          channelArray.push({ serverName: guild.name, serverId: guild.id, channelName: channel.name, channelId: channel.id });
         }
       });
     });
@@ -245,7 +260,7 @@ async function returnChannels(id, token) {
       bot.guilds.cache.forEach((guild) => {
         guild.channels.cache.map((channel) => {
           if (channel.type === "GUILD_TEXT") {
-            channelArray.push({serverName: guild.name, serverId: guild.id, channelName: channel.name, channelId: channel.id});
+            channelArray.push({ serverName: guild.name, serverId: guild.id, channelName: channel.name, channelId: channel.id });
           }
         });
       });
@@ -296,6 +311,7 @@ async function returnBotInfo(id, botId, token) {
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
 exports.verifyBotWithDiscord = verifyBotWithDiscord;
+exports.returnChannelObject = returnChannelObject;
 exports.returnChannels = returnChannels;
 exports.returnRoles = returnRoles;
 exports.returnStatus = returnStatus;
