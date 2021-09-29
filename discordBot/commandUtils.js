@@ -1,6 +1,7 @@
 const { MessageEmbed } = require('discord.js');
+const { returnChannelObject } = require("./botClientUtils");
 
-// Determines if botmodule should response with a basic text message or embeded,
+// Determines if botmodule should respond with a basic text message or embeded,
 // then returns an executable function will send the proper response
 async function buildResponse (message, botModule) {
   if(botModule.responseType === "basic") {
@@ -9,6 +10,25 @@ async function buildResponse (message, botModule) {
   } else if (botModule.responseType === "embed") {
     const embedResponse = await buildEmbedResponse(message, botModule);
     return () => message.channel.send({embeds: [embedResponse]});
+  }
+}
+
+// Determines if announcement should respond with a basic text message or embeded,
+// then returns an executable function will send the proper response to the desired
+// server channel
+async function buildAnnouncement (botId, announcement, member) {
+  // get channel object, as it's required in order to access the send method
+  const channelObject = await returnChannelObject(botId, announcement.responseChannel.channelId);
+  // add properties to channelObject that don't exist, but would normally exist on message object
+  // functions, such as messageParser, require these properties
+  channelObject.author = member.user; 
+
+  if(announcement.responseType === "basic") {
+    const basicResponse = await messageParser(channelObject, announcement.response);
+    return () => channelObject.send(basicResponse.toString());
+  } else if (announcement.responseType === "embed") {
+    const embedResponse = await buildEmbedResponse(channelObject, announcement);
+    return () => channelObject.send({embeds: [embedResponse]});
   }
 }
 
@@ -75,5 +95,6 @@ async function roleMatch (message, rolesArray) {
 }
 
 exports.buildResponse = buildResponse;
+exports.buildAnnouncement = buildAnnouncement;
 exports.messageParser = messageParser;
 exports.roleMatch = roleMatch;
