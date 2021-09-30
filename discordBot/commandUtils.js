@@ -18,17 +18,24 @@ async function buildResponse (message, botModule) {
 // server channel
 async function buildAnnouncement (botId, announcement, member) {
   // get channel object, as it's required in order to access the send method
-  const channelObject = await returnChannelObject(botId, announcement.responseChannel.channelId);
-  // add properties to channelObject that don't exist, but would normally exist on message object
-  // functions, such as messageParser, require these properties
-  channelObject.author = member.user; 
+  const channel = await returnChannelObject(botId, announcement.responseChannel.channelId);
+  // Recreate a psuedo message object with necessary properties that are normally
+  // found on the standard discord.js api message object. This is done because 
+  // the guildMemberAdd event listener only provides a member object, which lacks the 
+  // necessary methods to both make this module work AND make it integrate with the 
+  // already functioning commandUtil functions
+  const messageObject = {
+    channel : channel,
+    guild: channel.guild,
+    author: member.user
+  }
 
   if(announcement.responseType === "basic") {
-    const basicResponse = await messageParser(channelObject, announcement.response);
-    return () => channelObject.send(basicResponse.toString());
+    const basicResponse = await messageParser(messageObject, announcement.response);
+    return () => messageObject.channel.send(basicResponse.toString());
   } else if (announcement.responseType === "embed") {
-    const embedResponse = await buildEmbedResponse(channelObject, announcement);
-    return () => channelObject.send({embeds: [embedResponse]});
+    const embedResponse = await buildEmbedResponse(messageObject, announcement);
+    return () => messageObject.channel.send({embeds: [embedResponse]});
   }
 }
 
