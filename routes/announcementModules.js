@@ -5,6 +5,25 @@ const { initiateBot } = require("../discordBot/botClientUtils");
 const { Bot } = require("../models/bot");
 const { Announcement } = require("../models/announcement");
 
+router.delete("/", async (req, res) => {
+  const bot = await Bot.findById(req.body.botId);
+
+  const newAnnouncementModules = [];
+  for (let i = 0; i < bot.announcementModules.length; i++) {
+    if (String(bot.announcementModules[i]._id) !== String(req.body.moduleId)) {
+      newAnnouncementModules.push(bot.announcementModules[i]);
+    }
+  }
+
+  bot.announcementModules = newAnnouncementModules;
+
+  await bot.save();
+
+  initiateBot(bot);
+
+  res.send(bot);
+});
+
 router.post("/new-announcement", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
