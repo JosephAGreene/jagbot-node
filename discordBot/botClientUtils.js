@@ -1,4 +1,3 @@
-const c = require('config');
 const Discord = require('discord.js');
 const fs = require('fs');
 const commandFiles = fs.readdirSync("discordBot/commandModules").filter(file => file.endsWith('.js'));
@@ -151,12 +150,25 @@ async function initiateBot(bot) {
     botClients[id].on('guildMemberAdd', join);
   }
 
+  const leave = async (member) => {
+    const leaveModule = require(`./announcementModules/leaveAnnouncement.js`);
+    leaveModule.execute(member, id);
+  }
 
-  // const leave = async (member) => {
-  //   console.log(member);
-  // }
+  // Add guildMemberAdd event listener if type "leave"
+  // exists in announcementModules
+  let leaveCheck = false;
 
-  // botClients[id].on('guildMemberRemove', leave);
+  for (let i = 0; i < bot.announcementModules.length; i++) {
+    if (bot.announcementModules[i].type === "leave") {
+      leaveCheck = true;
+      break;
+    }
+  }
+
+  if (leaveCheck) {
+    botClients[id].on('guildMemberRemove', leave);
+  }
 }
 
 // Attempts to login with given bot token
