@@ -12,6 +12,7 @@ const baseIntents = [
   Discord.Intents.FLAGS.GUILD_MESSAGES,
   Discord.Intents.FLAGS.GUILD_PRESENCES,
   Discord.Intents.FLAGS.GUILD_MEMBERS,
+  Discord.Intents.FLAGS.GUILD_BANS,
 ];
 
 // Initiate a single bot client
@@ -130,13 +131,13 @@ async function initiateBot(bot) {
 
   botClients[id].on('messageCreate', message);
 
+  // Add guildMemberAdd event listener if type "join"
+  // exists in announcementModules
   const join = async (member) => {
     const joinModule = require(`./announcementModules/joinAnnouncement.js`);
     joinModule.execute(member, id);
   }
 
-  // Add guildMemberAdd event listener if type "join"
-  // exists in announcementModules
   let joinCheck = false;
 
   for (let i = 0; i < bot.announcementModules.length; i++) {
@@ -150,13 +151,13 @@ async function initiateBot(bot) {
     botClients[id].on('guildMemberAdd', join);
   }
 
+  // Add guildMemberAdd event listener if type "leave"
+  // exists in announcementModules
   const leave = async (member) => {
     const leaveModule = require(`./announcementModules/leaveAnnouncement.js`);
     leaveModule.execute(member, id);
   }
 
-  // Add guildMemberAdd event listener if type "leave"
-  // exists in announcementModules
   let leaveCheck = false;
 
   for (let i = 0; i < bot.announcementModules.length; i++) {
@@ -168,6 +169,26 @@ async function initiateBot(bot) {
 
   if (leaveCheck) {
     botClients[id].on('guildMemberRemove', leave);
+  }
+
+  // add guildBanAdd event listener if type "banned"
+  // exists in announcementModules
+  const banned = (ban) => {
+    const bannedModule = require(`./announcementModules/bannedAnnouncement.js`);
+    bannedModule.execute(ban, id);
+  }
+
+  let bannedCheck = false;
+
+  for (let i = 0; i < bot.announcementModules.length; i++) {
+    if (bot.announcementModules[i].type === "banned") {
+      bannedCheck = true;
+      break;
+    }
+  }
+
+  if (bannedCheck) {
+    botClients[id].on('guildBanAdd', banned);
   }
 }
 

@@ -5,6 +5,6 @@ module.exports = async () => {
 	const bots = await Bot.find({active: true});
 
 	bots.forEach((bot) => {
-		initiateBot(bot);
+	  initiateBot(bot);
 	});
 };
