@@ -227,49 +227,6 @@ async function returnChannelObject(clientId, channelId) {
 
 // Return all roles from all servers the bot is a member of, 
 // with the exception of the universal @everyone role
-async function returnRoles(id, token) {
-  let roleArray = [];
-
-  if (returnStatus(id)) {
-    // Fetch guilds with await to gaurantee cache accuracy 
-    await botClients[id].guilds.fetch();
-    botClients[id].guilds.cache.forEach((guild) => {
-      guild.roles.cache.forEach((role) => {
-        roleArray.push(role.name);
-      })
-    });
-  } else {
-    const bot = new Discord.Client({ intents: Discord.Intents.FLAGS.GUILDS });
-    try {
-      await bot.login(token);
-      // Fetch guilds with await to gaurantee cache accuracy 
-      await bot.guilds.fetch();
-      bot.guilds.cache.forEach((guild) => {
-        guild.roles.cache.forEach((role) => {
-          roleArray.push(role.name);
-        })
-      });
-    }
-    catch (err) {
-      bot.destroy();
-      return console.log(err.name);
-    }
-    bot.destroy();
-  }
-  // Role names converted to lowercase and sorted alphabetically
-  const sortedRoles = Array.from(new Set(roleArray.map(e => e.toLowerCase()))).sort();
-
-  // @everyone removed if it exists
-  const everyoneIndex = sortedRoles.indexOf('@everyone');
-  if (!(everyoneIndex < 0)) {
-    sortedRoles.splice(everyoneIndex, 1);
-  }
-
-  return sortedRoles;
-}
-
-// Return all roles from all servers the bot is a member of, 
-// with the exception of the universal @everyone role
 // Array contains role objects, grouped by server
 // role object: {serverId: "19201", serverName: "Server's Name", roleId: "18291", roleName: "Role's Name"}
 // Array Group: [
@@ -281,12 +238,13 @@ async function returnRoles(id, token) {
 //     ]
 //   },
 // ]
-async function returnRoles2(id, token) {
+async function returnRoles(id, token) {
   let roleArray = [];
 
   if (returnStatus(id)) {
     // Fetch guilds with await to gaurantee cache accuracy 
     await botClients[id].guilds.fetch();
+    
     botClients[id].guilds.cache.forEach((guild) => {
       let serverObject = {
         serverName: guild.name,
@@ -334,6 +292,21 @@ async function returnRoles2(id, token) {
     }
     bot.destroy();
   }
+
+  // Sort array first by servername grouping
+  roleArray.sort((a, b) => {
+    return a.serverName.toLowerCase().localeCompare(b.serverName.toLowerCase());
+  })
+
+  // Sort nested serverRoles array of each grouping by roleName  
+  roleArray.map((server) => {
+    return {
+      serverName: server.serverName,
+      serverRoles: server.serverRoles.sort((a, b) => {
+        return a.roleName.toLowerCase().localeCompare(b.roleName.toLowerCase());
+     })
+    }
+  });
 
   return roleArray;
 }
@@ -416,6 +389,5 @@ exports.verifyBotWithDiscord = verifyBotWithDiscord;
 exports.returnChannelObject = returnChannelObject;
 exports.returnChannels = returnChannels;
 exports.returnRoles = returnRoles;
-exports.returnRoles2 = returnRoles2;
 exports.returnStatus = returnStatus;
 exports.returnBotInfo = returnBotInfo;
