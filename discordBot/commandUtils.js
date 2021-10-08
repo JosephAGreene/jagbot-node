@@ -85,7 +85,7 @@ async function getAuthorDisplayName(msg) {
   } catch (err) {
     return msg.author.username;
   }
-  
+
 }
 
 async function messageParser(message, botModuleResponse) {
@@ -103,7 +103,10 @@ async function messageParser(message, botModuleResponse) {
 // assigned a role that's also included in the rolesArray array
 async function roleMatch(message, rolesArray) {
   for (let i = 0; i < rolesArray.length; i++) {
-    if (message.member.roles.cache.find(r => r.name.toLowerCase() === rolesArray[i])) {
+    const guildCheck = (message.guild.id === rolesArray[i].serverId);
+    const roleCheck = message.member.roles.cache.find(r => r.id === rolesArray[i].roleId);
+
+    if (guildCheck && roleCheck) {
       return true;
     }
   }
