@@ -268,6 +268,75 @@ async function returnRoles(id, token) {
   return sortedRoles;
 }
 
+// Return all roles from all servers the bot is a member of, 
+// with the exception of the universal @everyone role
+// Array contains role objects, grouped by server
+// role object: {serverId: "19201", serverName: "Server's Name", roleId: "18291", roleName: "Role's Name"}
+// Array Group: [
+//   {
+//     serverName: "Server's Name",
+//     serverRoles: [
+//       {serverId: "19201", serverName: "Server's Name", roleId: "18291", roleName: "Role's Name"}
+//       {serverId: "19201", serverName: "Server's Name", roleId: "10293", roleName: "Another Role's Name"}
+//     ]
+//   },
+// ]
+async function returnRoles2(id, token) {
+  let roleArray = [];
+
+  if (returnStatus(id)) {
+    // Fetch guilds with await to gaurantee cache accuracy 
+    await botClients[id].guilds.fetch();
+    botClients[id].guilds.cache.forEach((guild) => {
+      let serverObject = {
+        serverName: guild.name,
+        serverRoles: [],
+      }
+      guild.roles.cache.forEach((role) => {
+        if (role.name !== "@everyone") {
+          serverObject.serverRoles.push({
+            serverId: guild.id,
+            serverName: guild.name,
+            roleId: role.id,
+            roleName: role.name,
+          });
+        }
+      });
+      roleArray.push(serverObject);
+    });
+  } else {
+    const bot = new Discord.Client({ intents: Discord.Intents.FLAGS.GUILDS });
+    try {
+      await bot.login(token);
+      // Fetch guilds with await to gaurantee cache accuracy 
+      await bot.guilds.fetch();
+      bot.guilds.cache.forEach((guild) => {
+        let serverObject = {
+          serverName: guild.name,
+          serverRoles: [],
+        }
+        guild.roles.cache.forEach((role) => {
+          if (role.name !== "@everyone") {
+            serverObject.serverRoles.push({
+              serverId: guild.id,
+              serverName: guild.name,
+              roleId: role.id,
+              roleName: role.name,
+            });
+          }
+        });
+        roleArray.push(serverObject);
+      });
+    }
+    catch (err) {
+      bot.destroy();
+      return console.log(err.name);
+    }
+    bot.destroy();
+  }
+
+  return roleArray;
+}
 
 // Return an array of objects containing Server Name/ID and Channel Name/ID for
 // all servers the bot is currently a member of
@@ -347,5 +416,6 @@ exports.verifyBotWithDiscord = verifyBotWithDiscord;
 exports.returnChannelObject = returnChannelObject;
 exports.returnChannels = returnChannels;
 exports.returnRoles = returnRoles;
+exports.returnRoles2 = returnRoles2;
 exports.returnStatus = returnStatus;
 exports.returnBotInfo = returnBotInfo;
