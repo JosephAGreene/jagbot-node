@@ -132,18 +132,25 @@ async function initiateBot(bot) {
   botClients[id].on('messageCreate', message);
 
   // Add guildMemberAdd event listener if type "join"
-  // exists in announcementModules
+  // exists in announcementModules, or type "auto-role" exists
+  // in scanModule
   const join = async (member) => {
     const joinModule = require(`./announcementModules/joinAnnouncement.js`);
     joinModule.execute(member, id);
   }
 
-  let joinCheck = false;
+  // Both the auto-role scanModule and type "join" announcementModule are provoked
+  // by the guildMemberAdd eventListener. The existence of either one should add
+  // the eventListener to the client. 
+  let joinCheck = bot.scanModules.find((module) => module.type === "auto-role");
 
-  for (let i = 0; i < bot.announcementModules.length; i++) {
-    if (bot.announcementModules[i].type === "join") {
-      joinCheck = true;
-      break;
+  // If no auto-role scanModule exists, then check for an announcementModule of type "join"
+  if (!joinCheck) {
+    for (let i = 0; i < bot.announcementModules.length; i++) {
+      if (bot.announcementModules[i].type === "join") {
+        joinCheck = true;
+        break;
+      }
     }
   }
 
@@ -293,7 +300,7 @@ async function returnRoles(id, token) {
     bot.destroy();
   }
 
-  // Sort array first by servername grouping
+  // Sort array first by serverName grouping
   roleArray.sort((a, b) => {
     return a.serverName.toLowerCase().localeCompare(b.serverName.toLowerCase());
   })
