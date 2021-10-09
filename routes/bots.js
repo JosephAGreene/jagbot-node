@@ -7,6 +7,7 @@ const { WordFilter } = require("../models/wordFilter");
 const { InviteFilter } = require("../models/inviteFilter");
 const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
+const { AutoRole } = require("../models/autoRole");
 const { SteamNews } = require("../models/steamNews");
 const { initiateBot, verifyBotWithDiscord, returnRoles, returnChannels, returnBotInfo } = require("../discordBot/botClientUtils");
 
@@ -76,6 +77,7 @@ router.post("/add-new-bot", async (req, res) => {
       new MassCapsFilter(),
       new MassMentionsFilter(),
       new WordFilter(),
+      new AutoRole(),
     ]
   });
 
