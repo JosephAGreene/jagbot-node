@@ -57,12 +57,32 @@ const baseAutoModSchema = {
       "string.max": 'Response cannot be greater than 1000 characters',
       "any.required": 'Response is required',
     }),
-  ignoredRoles: Joi.array().max(10).required()
+  ignoredRoles: Joi.array().required().items(
+    Joi.object({
+      serverId: Joi.string().trim().required()
+        .messages({
+          "string.empty": 'Server id cannot be blank',
+          "any.required": 'Server id property is required',
+        }),
+      serverName: Joi.string().trim().required()
+        .messages({
+          "string.empty": 'Server name cannot be blank',
+          "any.required": 'Server name property is required',
+        }),
+      roleId: Joi.string().trim().required()
+        .messages({
+          "string.empty": 'Role id cannot be blank',
+          "any.required": 'Role id property is required',
+        }),
+      roleName: Joi.string().trim().required()
+        .messages({
+          "string.empty": 'Role name cannot be blank',
+          "any.required": 'Role name property is required',
+        }),
+    }))
     .messages({
-      "any.required": "Ignored roles is required",
-      "array.required": "Ignored roles is required",
-      "array.base": "Ignored roles must be an array",
-      "array.max": "Ignored roles cannot exceed 10",
+      "array.base": 'IgnoredRoles property must be an array',
+      "any.required": `Ignored roles property is required`,
     }),
 };
 

@@ -16,9 +16,28 @@ const wordFilterSchema = new mongoose.Schema({
   },
   ignoredRoles: [
     {
-      type: String,
-      trim: true,
-    },
+      _id: false,
+      serverId: {
+        type: String,
+        trim: true,
+        required: true,
+      },
+      serverName: {
+        type: String,
+        trim: true,
+        required: true,
+      },
+      roleId: {
+        type: String,
+        trim: true,
+        required: true,
+      },
+      roleName: {
+        type: String,
+        trim: true,
+        required: true,
+      },
+    }
   ],
   triggerWords: [
     {
