@@ -160,7 +160,7 @@ async function initiateBot(bot) {
   }
 
   // Add guildMemberAdd event listener if type "leave"
-  // exists in announcementModules
+  // or type "kicked" exists in announcementModules
   const leave = async (member) => {
     const leaveModule = require(`./memberEventModules/leave.js`);
     leaveModule.execute(member, id);
@@ -169,7 +169,8 @@ async function initiateBot(bot) {
   let leaveCheck = false;
 
   for (let i = 0; i < bot.announcementModules.length; i++) {
-    if (bot.announcementModules[i].type === "leave") {
+    let type = bot.announcementModules[i].type;
+    if (type === "leave" || type === "kicked") {
       leaveCheck = true;
       break;
     }
@@ -252,7 +253,7 @@ async function returnRoles(id, token) {
   if (returnStatus(id)) {
     // Fetch guilds with await to gaurantee cache accuracy 
     await botClients[id].guilds.fetch();
-    
+
     botClients[id].guilds.cache.forEach((guild) => {
       let serverObject = {
         serverName: guild.name,
@@ -312,7 +313,7 @@ async function returnRoles(id, token) {
       serverName: server.serverName,
       serverRoles: server.serverRoles.sort((a, b) => {
         return a.roleName.toLowerCase().localeCompare(b.roleName.toLowerCase());
-     })
+      })
     }
   });
 

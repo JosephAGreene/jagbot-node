@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
 /* 
-    Join Announcement is an announcement module that provokes
-    a response when a new member joins the server. 
+    Announcements are responses that are invoked whenever a user 
+    joins, leaves, gets kicked, or gets banned from the server
 */
 
 const announcementSchema = new mongoose.Schema({
   type: {
-    type: String, // Allow only Join, Leave, Ban
+    type: String, // Allow only Join, Leave, Kick, Ban
     trim: true,
     required: true,
   },
