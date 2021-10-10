@@ -48,14 +48,15 @@ async function initiateBot(bot) {
     }
   }
 
-  // Add list of scans to botClient that correspond to available scan modules from bot 
+  // Add list of scans to botClient that correspond to available autoModModules that rely
+  // on scan type events (Note: All autoModModules, aside from type autoRole, are scan type)
   for (const file of scanFiles) {
     const scan = require(`./scanModules/${file}`);
 
-    for (i = 0; i < bot.scanModules.length; i++) {
-      if (scan.type === bot.scanModules[i].type && bot.scanModules[i].enabled) {
-        botClients[id].scans.set(bot.scanModules[i].type, scan);
-        botClients[id].scanModules.push(bot.scanModules[i]);
+    for (i = 0; i < bot.autoModModules.length; i++) {
+      if (scan.type === bot.autoModModules[i].type && bot.autoModModules[i].enabled) {
+        botClients[id].scans.set(bot.autoModModules[i].type, scan);
+        botClients[id].scanModules.push(bot.autoModModules[i]);
       }
     }
   }
@@ -135,14 +136,14 @@ async function initiateBot(bot) {
   // exists in announcementModules, or type "auto-role" exists
   // in scanModule
   const join = async (member) => {
-    const joinModule = require(`./announcementModules/joinAnnouncement.js`);
+    const joinModule = require(`./memberEventModules/join.js`);
     joinModule.execute(member, id);
   }
 
-  // Both the auto-role scanModule and type "join" announcementModule are provoked
+  // Both the auto-role autoModModule and type "join" announcementModule are provoked
   // by the guildMemberAdd eventListener. The existence of either one should add
   // the eventListener to the client. 
-  let joinCheck = bot.scanModules.find((module) => module.type === "auto-role");
+  let joinCheck = bot.autoModModules.find((module) => module.type === "auto-role");
 
   // If no auto-role scanModule exists, then check for an announcementModule of type "join"
   if (!joinCheck) {
@@ -161,7 +162,7 @@ async function initiateBot(bot) {
   // Add guildMemberAdd event listener if type "leave"
   // exists in announcementModules
   const leave = async (member) => {
-    const leaveModule = require(`./announcementModules/leaveAnnouncement.js`);
+    const leaveModule = require(`./memberEventModules/leave.js`);
     leaveModule.execute(member, id);
   }
 
@@ -181,7 +182,7 @@ async function initiateBot(bot) {
   // add guildBanAdd event listener if type "banned"
   // exists in announcementModules
   const banned = (ban) => {
-    const bannedModule = require(`./announcementModules/bannedAnnouncement.js`);
+    const bannedModule = require(`./memberEventModules/banned.js`);
     bannedModule.execute(ban, id);
   }
 

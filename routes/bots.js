@@ -20,8 +20,8 @@ router.get("/summary", auth, async (req, res) => {
 
   for (let i=0; i < bots.length; i++) {
     let moduleCount = bots[i].commandModules.length;
-    for (let j=0; j < bots[i].scanModules.length; j++) {
-      if (bots[i].scanModules[j].enabled) {
+    for (let j=0; j < bots[i].autoModModules.length; j++) {
+      if (bots[i].autoModModules[j].enabled) {
         moduleCount++;
       }
     }
@@ -72,7 +72,7 @@ router.post("/add-new-bot", async (req, res) => {
     botId: botInfo.id,
     name: botInfo.name,
     prefix: req.body.prefix,
-    scanModules: [
+    autoModModules: [
       new InviteFilter(),
       new MassCapsFilter(),
       new MassMentionsFilter(),

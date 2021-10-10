@@ -27,9 +27,9 @@ router.post("/auto-role", auth, async (req, res) => {
     roles: req.body.roles,
   });
 
-  for (let i = 0; i < bot.scanModules.length; i++) {
-    if (bot.scanModules[i].type === "auto-role") {
-      bot.scanModules.splice(i, 1, newAutoRole);
+  for (let i = 0; i < bot.autoModModules.length; i++) {
+    if (bot.autoModModules[i].type === "auto-role") {
+      bot.autoModModules.splice(i, 1, newAutoRole);
       break;
     }
   }
@@ -62,9 +62,9 @@ router.post("/word-filter", [auth, validate(wordValid)], async (req, res) => {
     responseLocation: req.body.responseLocation,
   });
 
-  for (let i = 0; i < bot.scanModules.length; i++) {
-    if (bot.scanModules[i].type === "word-filter") {
-      bot.scanModules.splice(i, 1, newWordFilter);
+  for (let i = 0; i < bot.autoModModules.length; i++) {
+    if (bot.autoModModules[i].type === "word-filter") {
+      bot.autoModModules.splice(i, 1, newWordFilter);
       break;
     }
   }
@@ -96,9 +96,9 @@ router.post("/invite-filter", [auth, validate(inviteValid)], async (req, res) =>
     responseLocation: req.body.responseLocation,
   });
 
-  for (let i = 0; i < bot.scanModules.length; i++) {
-    if (bot.scanModules[i].type === "invite-filter") {
-      bot.scanModules.splice(i, 1, newInviteFilter);
+  for (let i = 0; i < bot.autoModModules.length; i++) {
+    if (bot.autoModModules[i].type === "invite-filter") {
+      bot.autoModModules.splice(i, 1, newInviteFilter);
       break;
     }
   }
@@ -130,9 +130,9 @@ router.post("/masscaps-filter", [auth, validate(capsValid)], async (req, res) =>
     responseLocation: req.body.responseLocation,
   });
 
-  for (let i = 0; i < bot.scanModules.length; i++) {
-    if (bot.scanModules[i].type === "masscaps-filter") {
-      bot.scanModules.splice(i, 1, newMassCapsFilter);
+  for (let i = 0; i < bot.autoModModules.length; i++) {
+    if (bot.autoModModules[i].type === "masscaps-filter") {
+      bot.autoModModules.splice(i, 1, newMassCapsFilter);
       break;
     }
   }
@@ -165,9 +165,9 @@ router.post("/massmentions-filter", [auth, validate(mentionsValid)], async (req,
     responseLocation: req.body.responseLocation,
   });
 
-  for (let i = 0; i < bot.scanModules.length; i++) {
-    if (bot.scanModules[i].type === "massmentions-filter") {
-      bot.scanModules.splice(i, 1, newMassMentionsFilter);
+  for (let i = 0; i < bot.autoModModules.length; i++) {
+    if (bot.autoModModules[i].type === "massmentions-filter") {
+      bot.autoModModules.splice(i, 1, newMassMentionsFilter);
       break;
     }
   }

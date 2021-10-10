@@ -9,7 +9,7 @@ module.exports = {
     
     // If enabled auto-role module exists, push role id's into roles array
     let roles = [];
-    const autoRoleModule = bot.scanModules.find((module) => (module.type === "auto-role" && module.enabled));
+    const autoRoleModule = bot.autoModModules.find((module) => (module.type === "auto-role" && module.enabled));
     if(autoRoleModule) {
       autoRoleModule.roles.forEach((role) => {
         if(role.serverId === memberServer) {
