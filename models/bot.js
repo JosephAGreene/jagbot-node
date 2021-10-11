@@ -78,6 +78,7 @@ const botSchema = new mongoose.Schema({
     }
   ],
   serverChannels: [], // Array of objects representing servers and channels
+  moderationModules: [],
   autoModModules: [], 
   commandModules: [], // Command Modules require a command to induce execution
   announcementModules: [], // Announcement Modules execute on join/leave/ban event listeners
