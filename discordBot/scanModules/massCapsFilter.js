@@ -13,7 +13,7 @@ module.exports = {
     if (count > message.content.length * .7) {
       // Exit function if message author is assigned an ignored role
       try {
-        roleMatched = await roleMatch(message, botModule.ignoredRoles);
+        const roleMatched = roleMatch(message, botModule.ignoredRoles);
         if (roleMatched) return false;
       } catch (err) {
         message.channel.send(err.message);
