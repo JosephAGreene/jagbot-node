@@ -41,9 +41,23 @@ async function initiateBot(bot) {
   for (const file of commandFiles) {
     const command = require(`./commandModules/${file}`);
 
+    // Add commands from moderationModules
+    for (i = 0; i < bot.moderationModules.length; i++) {
+      if (command.type === bot.moderationModules[i].type) {
+        const moduleId = bot.moderationModules[i]._id;
+        botClients[id].commands.set(bot.moderationModules[i].command.toLowerCase(), 
+          {execute: async (message) => {command.execute(message, id, moduleId)}}
+        );
+      }
+    }    
+
+    // Add commands from commandModules
     for (i = 0; i < bot.commandModules.length; i++) {
       if (command.type === bot.commandModules[i].type) {
-        botClients[id].commands.set(bot.commandModules[i].command.toLowerCase(), command);
+        const moduleId = bot.commandModules[i]._id;
+        botClients[id].commands.set(bot.commandModules[i].command.toLowerCase(), 
+          {execute: async (message) => {command.execute(message, id, moduleId)}}
+        );
       }
     }
   }
@@ -122,8 +136,7 @@ async function initiateBot(bot) {
     if (!botClients[id].commands.has(command)) return;
 
     try {
-      const botModule = bot.commandModules.find(module => module.command.toLowerCase() === command);
-      botClients[id].commands.get(command).execute(message, botModule);
+      botClients[id].commands.get(command).execute(message);
     } catch (error) {
       console.error(error);
       message.reply('there was an error trying to execute that command!');
