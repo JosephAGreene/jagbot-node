@@ -101,7 +101,7 @@ async function messageParser(message, botModuleResponse) {
 
 // Returns true if message was authored by a user that is 
 // assigned a role that's also included in the rolesArray array
-async function roleMatch(message, rolesArray) {
+function roleMatch(message, rolesArray) {
   for (let i = 0; i < rolesArray.length; i++) {
     const guildCheck = (message.guild.id === rolesArray[i].serverId);
     const roleCheck = message.member.roles.cache.find(r => r.id === rolesArray[i].roleId);
@@ -113,7 +113,22 @@ async function roleMatch(message, rolesArray) {
   return false;
 }
 
+function getMentionId(mention) {
+	if (!mention) return;
+
+	if (mention.startsWith('<@') && mention.endsWith('>')) {
+		mention = mention.slice(2, -1);
+
+		if (mention.startsWith('!')) {
+			mention = mention.slice(1);
+		}
+
+		return mention;
+	}
+}
+
 exports.buildResponse = buildResponse;
 exports.buildAnnouncement = buildAnnouncement;
 exports.messageParser = messageParser;
 exports.roleMatch = roleMatch;
+exports.getMentionId = getMentionId;
