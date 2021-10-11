@@ -14,7 +14,7 @@ module.exports = {
     if (!bot) return;
 
     // Find Module
-    const module = bot.commandModules.find((module) => String(module._id) == String(moduleId));
+    const module = bot.customModules.find((module) => String(module._id) == String(moduleId));
     if (!module) return;
 
     try {

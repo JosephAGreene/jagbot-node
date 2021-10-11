@@ -20,7 +20,7 @@ router.get("/summary", auth, async (req, res) => {
   let botSummary = [];
 
   for (let i=0; i < bots.length; i++) {
-    let moduleCount = bots[i].commandModules.length;
+    let moduleCount = bots[i].customModules.length;
     for (let j=0; j < bots[i].autoModModules.length; j++) {
       if (bots[i].autoModModules[j].enabled) {
         moduleCount++;
@@ -120,7 +120,7 @@ router.post("/steam-news", async (req, res) => {
     command: req.body.command,
   });
 
-  bot.commandModules.push(newSteamNews);
+  bot.customModules.push(newSteamNews);
 
   await bot.save();
 

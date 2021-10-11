@@ -37,7 +37,8 @@ async function initiateBot(bot) {
     botClients[id].scanModules = [];
   }
 
-  // Add list of commands to botClient that correspond to available command modules from bot
+  // Add list of commands to botClient that correspond to available
+  // moderation and  command modules from bot
   for (const file of commandFiles) {
     const command = require(`./commandModules/${file}`);
 
@@ -51,11 +52,11 @@ async function initiateBot(bot) {
       }
     }    
 
-    // Add commands from commandModules
-    for (i = 0; i < bot.commandModules.length; i++) {
-      if (command.type === bot.commandModules[i].type) {
-        const moduleId = bot.commandModules[i]._id;
-        botClients[id].commands.set(bot.commandModules[i].command.toLowerCase(), 
+    // Add commands from customModules
+    for (i = 0; i < bot.customModules.length; i++) {
+      if (command.type === bot.customModules[i].type) {
+        const moduleId = bot.customModules[i]._id;
+        botClients[id].commands.set(bot.customModules[i].command.toLowerCase(), 
           {execute: async (message) => {command.execute(message, id, moduleId)}}
         );
       }

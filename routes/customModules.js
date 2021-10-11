@@ -21,14 +21,14 @@ const { initiateBot } = require("../discordBot/botClientUtils");
 router.delete("/", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
-  const newCommandModules = [];
-  for (let i = 0; i < bot.commandModules.length; i++) {
-    if (bot.commandModules[i]._id != req.body.moduleId) {
-      newCommandModules.push(bot.commandModules[i]);
+  const newCustomModules = [];
+  for (let i = 0; i < bot.customModules.length; i++) {
+    if (bot.customModules[i]._id != req.body.moduleId) {
+      newCustomModules.push(bot.customModules[i]);
     }
   }
 
-  bot.commandModules = newCommandModules;
+  bot.customModules = newCustomModules;
 
   await bot.save();
 
@@ -49,7 +49,7 @@ router.post("/single-response", [auth, validate(addSingle)], async (req, res) =>
   }
 
   let commandExists = false;
-  bot.commandModules.forEach((module) => {
+  bot.customModules.forEach((module) => {
     if (module.command.toLowerCase() === req.body.command.toLowerCase()) {
       commandExists = true;
     }
@@ -76,7 +76,7 @@ router.post("/single-response", [auth, validate(addSingle)], async (req, res) =>
     embedFooterThumbnailURL: req.body.embedFooterThumbnailURL,
   });
 
-  bot.commandModules.push(newSingleResponse);
+  bot.customModules.push(newSingleResponse);
 
   await bot.save();
 
@@ -98,8 +98,8 @@ router.put("/update-single-response", [auth, validate(updateSingle)], async (req
 
   // If module exists, set moduleLocation to the module's index number
   let moduleLocation = -1;
-  for (let i =0; i < bot.commandModules.length; i++) {
-    if (String(bot.commandModules[i]._id) === String(req.body.moduleId)) {
+  for (let i =0; i < bot.customModules.length; i++) {
+    if (String(bot.customModules[i]._id) === String(req.body.moduleId)) {
       moduleLocation = i;
       break;
     }
@@ -111,7 +111,7 @@ router.put("/update-single-response", [auth, validate(updateSingle)], async (req
   } 
 
   let commandExists = false;
-  bot.commandModules.forEach((module, index) => {
+  bot.customModules.forEach((module, index) => {
     if (module.command.toLowerCase() === req.body.command.toLowerCase()) {
       commandExists = index;
     }
@@ -123,8 +123,8 @@ router.put("/update-single-response", [auth, validate(updateSingle)], async (req
     return res.status(409).send("duplicate command");
   }
 
-  bot.commandModules.splice(moduleLocation, 1, {
-    ...bot.commandModules[moduleLocation],
+  bot.customModules.splice(moduleLocation, 1, {
+    ...bot.customModules[moduleLocation],
     command: req.body.command,
     description: req.body.description,
     responseLocation: req.body.responseLocation,
@@ -160,7 +160,7 @@ router.post("/optioned-response", [auth, validate(addOptioned)], async (req, res
   }
 
   let commandExists = false;
-  bot.commandModules.forEach((module) => {
+  bot.customModules.forEach((module) => {
     if (module.command.toLowerCase() === req.body.command.toLowerCase()) {
       commandExists = true;
     }
@@ -207,7 +207,7 @@ router.post("/optioned-response", [auth, validate(addOptioned)], async (req, res
     options: options,
   });
 
-  bot.commandModules.push(newOptionedResponse);
+  bot.customModules.push(newOptionedResponse);
 
   await bot.save();
 
@@ -229,8 +229,8 @@ router.put("/update-optioned-response", [auth, validate(updateOptioned)], async 
 
   // If module exists, set moduleLocation to the module's index number
   let moduleLocation = -1;
-  for (let i =0; i < bot.commandModules.length; i++) {
-    if (String(bot.commandModules[i]._id) === String(req.body.moduleId)) {
+  for (let i =0; i < bot.customModules.length; i++) {
+    if (String(bot.customModules[i]._id) === String(req.body.moduleId)) {
       moduleLocation = i;
       break;
     }
@@ -242,7 +242,7 @@ router.put("/update-optioned-response", [auth, validate(updateOptioned)], async 
   } 
 
   let commandExists = false;
-  bot.commandModules.forEach((module, index) => {
+  bot.customModules.forEach((module, index) => {
     if (module.command.toLowerCase() === req.body.command.toLowerCase()) {
       commandExists = index;
     }
@@ -285,8 +285,8 @@ router.put("/update-optioned-response", [auth, validate(updateOptioned)], async 
   });
 
   // Insert new optioned command values at location of moduleId
-  bot.commandModules.splice(moduleLocation, 1, {
-    ...bot.commandModules[moduleLocation],
+  bot.customModules.splice(moduleLocation, 1, {
+    ...bot.customModules[moduleLocation],
     command: req.body.command,
     description: req.body.description,
     responseLocation: req.body.responseLocation,
@@ -312,7 +312,7 @@ router.post("/random-response", [auth, validate(addRandom)], async (req, res) =>
   }
 
   let commandExists = false;
-  bot.commandModules.forEach((module) => {
+  bot.customModules.forEach((module) => {
     if (module.command.toLowerCase() === req.body.command.toLowerCase()) {
       commandExists = true;
     }
@@ -348,7 +348,7 @@ router.post("/random-response", [auth, validate(addRandom)], async (req, res) =>
     responses: responses,
   });
 
-  bot.commandModules.push(newRandomResponse);
+  bot.customModules.push(newRandomResponse);
 
   await bot.save();
 
@@ -370,8 +370,8 @@ router.put("/update-random-response", [auth, validate(updateRandom)], async (req
 
   // If module exists, set moduleLocation to the module's index number
   let moduleLocation = -1;
-  for (let i =0; i < bot.commandModules.length; i++) {
-    if (String(bot.commandModules[i]._id) === String(req.body.moduleId)) {
+  for (let i =0; i < bot.customModules.length; i++) {
+    if (String(bot.customModules[i]._id) === String(req.body.moduleId)) {
       moduleLocation = i;
       break;
     }
@@ -383,7 +383,7 @@ router.put("/update-random-response", [auth, validate(updateRandom)], async (req
   } 
 
   let commandExists = false;
-  bot.commandModules.forEach((module, index) => {
+  bot.customModules.forEach((module, index) => {
     if (module.command.toLowerCase() === req.body.command.toLowerCase()) {
       commandExists = index;
     }
@@ -415,8 +415,8 @@ router.put("/update-random-response", [auth, validate(updateRandom)], async (req
   });
 
   // Insert new random command values at location of moduleId
-  bot.commandModules.splice(moduleLocation, 1, {
-    ...bot.commandModules[moduleLocation],
+  bot.customModules.splice(moduleLocation, 1, {
+    ...bot.customModules[moduleLocation],
     command: req.body.command,
     description: req.body.description,
     responseLocation: req.body.responseLocation,
