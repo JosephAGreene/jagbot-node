@@ -4,7 +4,7 @@ const router = express.Router();
 const { initiateBot } = require("../discordBot/botClientUtils");
 const { Bot } = require("../models/bot");
 
-router.put("/update-ban", async (req, res) => {
+router.post("/update-ban", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If module exists, set moduleLocation to the module's index number
