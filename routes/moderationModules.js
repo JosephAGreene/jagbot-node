@@ -4,7 +4,9 @@ const router = express.Router();
 const { initiateBot } = require("../discordBot/botClientUtils");
 const { Bot } = require("../models/bot");
 
-router.post("/update-ban", async (req, res) => {
+// Update a moderation module that conforms to the base moderation 
+// model type (i.e. Ban, Kick, etc)
+router.post("/update-base-moderation", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   // If module exists, set moduleLocation to the module's index number
@@ -34,5 +36,7 @@ router.post("/update-ban", async (req, res) => {
 
   res.send(bot);
 });
+
+
 
 module.exports = router;

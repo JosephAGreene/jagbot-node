@@ -52,6 +52,27 @@ const banModerationSchema = new mongoose.Schema({
   ...baseModerationSchemaObject,
 });
 
+const kickModerationSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    default: "kick",
+  },
+  command: {
+    type: String,
+    trim: true,
+    required: true,
+    default: "kick"
+  },
+  description: {
+    type: String,
+    trim: true,
+    default: "Kicks a user from the server."
+  },
+  ...baseModerationSchemaObject,
+});
+
 const BanModeration = mongoose.model('BanModeration', banModerationSchema);
+const KickModeration = mongoose.model('KickModeration', kickModerationSchema);
 
 exports.BanModeration = BanModeration;
+exports.KickModeration = KickModeration;
