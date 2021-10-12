@@ -13,10 +13,24 @@ module.exports = {
 
     // Do nothing if command sent by a member without allowed role
     const roleMatched = roleMatch(message, module.allowedRoles);
-    if (!roleMatched) return;
+    if (!roleMatched) {
+      try {
+        message.reply("You don't possess an authorized role to use this command.");
+        return;
+      } catch (err) {
+        return;
+      }
+    }
 
     // If more or less than 1 mention exists, do nothing
-    if(message.mentions.users.size !== 1) return;
+    if(message.mentions.users.size !== 1) {
+      try {
+        message.reply("Mention exactly 1 member to ban.");
+        return;
+      } catch (err) {
+        return;
+      }
+    }
     
     // Get user id from mention collection 
     const collectionMentionId = message.mentions.users.firstKey(1)[0];  
@@ -26,16 +40,36 @@ module.exports = {
     const messageMentionId = getMentionId(mentionArg);
     
     // collectionMentionId and messageMentionId MUST be the same
-    if (collectionMentionId !== messageMentionId) return;
+    if (collectionMentionId !== messageMentionId) {
+      try {
+        message.reply("Cannot find user to ban.");
+        return;
+      } catch (err) {
+        return;
+      }
+    }
 
     const banMember = message.guild.members.cache.get(messageMentionId);
-    const reason = message.content.split(' ').slice(2).join(' ').trim();
+    const guildName = message.guild.name;
+    let reason = message.content.split(' ').slice(2).join(' ').trim();
+    // Reduce reason given if it's 500 characters or longer
+    if (reason.length > 499) {
+      reason = reason.slice(0, 499);
+    }
 
+    // Attempt to DM user before banning them, if the user doesn't allow DMs
+    // then an error will be thrown, catch it, and then ban the user without
+    // sending a DM as a failsafe to the error
     if (banMember) {
       try {
+        await banMember.send(`You have been banned from ${guildName}. Reason: ${reason ? reason : "none given"}`);
         await banMember.ban({reason: (reason ? reason : '')});
       } catch (err) {
-        console.log(err.message);
+        try {
+          await banMember.ban({reason: (reason ? reason : '')});
+        } catch (err) {
+          console.log(err.message);
+        }
       }
     }
 
