@@ -62,7 +62,7 @@ module.exports = {
     // sending a DM as a failsafe to the error
     if (banMember) {
       try {
-        await banMember.send(`You have been banned from ${guildName}. Reason: ${reason ? reason : "none given"}`);
+        await banMember.send(`You have been banned from ${guildName}. \nReason: ${reason ? reason : "none given"}`);
         await banMember.ban({reason: (reason ? reason : '')});
       } catch (err) {
         try {
