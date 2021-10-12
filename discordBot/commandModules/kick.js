@@ -13,10 +13,24 @@ module.exports = {
 
     // Do nothing if command sent by a member without allowed role
     const roleMatched = roleMatch(message, module.allowedRoles);
-    if (!roleMatched) return;
+    if (!roleMatched) {
+      try {
+        message.reply("You don't possess an authorized role to use this command.");
+        return;
+      } catch (err) {
+        return;
+      }
+    }
 
     // If more or less than 1 mention exists, do nothing
-    if(message.mentions.users.size !== 1) return;
+    if(message.mentions.users.size !== 1) {
+      try {
+        message.reply("Mention exactly 1 member to kick.");
+        return;
+      } catch (err) {
+        return;
+      }
+    }
     
     // Get user id from mention collection 
     const collectionMentionId = message.mentions.users.firstKey(1)[0];  
@@ -26,7 +40,14 @@ module.exports = {
     const messageMentionId = getMentionId(mentionArg);
     
     // collectionMentionId and messageMentionId MUST be the same
-    if (collectionMentionId !== messageMentionId) return;
+    if (collectionMentionId !== messageMentionId) {
+      try {
+        message.reply("Cannot find user to kick.");
+        return;
+      } catch (err) {
+        return;
+      }
+    }
 
     const kickMember = message.guild.members.cache.get(messageMentionId);
 
@@ -34,7 +55,11 @@ module.exports = {
       try {
         await kickMember.kick();
       } catch (err) {
-        console.log(err.message);
+        try {
+          message.reply(`Cannot kick member: ${error.message}`);
+        } catch (err) {
+          console.log(err.message);
+        }
       }
     }
 

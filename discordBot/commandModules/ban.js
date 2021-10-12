@@ -68,7 +68,11 @@ module.exports = {
         try {
           await banMember.ban({reason: (reason ? reason : '')});
         } catch (err) {
-          console.log(err.message);
+          try {
+            message.reply(`Cannot ban member: ${err.message}`);
+          } catch (err) {
+            console.log(err.message);
+          }
         }
       }
     }
