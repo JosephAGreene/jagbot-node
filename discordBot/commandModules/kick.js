@@ -50,10 +50,15 @@ module.exports = {
     }
 
     const kickMember = message.guild.members.cache.get(messageMentionId);
+    let reason = message.content.split(' ').slice(2).join(' ').trim();
+    // Reduce reason given if it's 500 characters or longer
+    if (reason.length > 499) {
+      reason = reason.slice(0, 499);
+    }
 
     if (kickMember) {
       try {
-        await kickMember.kick();
+        await kickMember.kick(reason);
       } catch (err) {
         try {
           message.reply(`Cannot kick member: ${error.message}`);
