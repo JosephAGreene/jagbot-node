@@ -47,7 +47,26 @@ const banModerationSchema = new mongoose.Schema({
   description: {
     type: String,
     trim: true,
-    default: "Bans a user from the server."
+    default: "Bans a user from the server, deletes their messages from the last 7 days, and sends the user a ban notice."
+  },
+  ...baseModerationSchemaObject,
+});
+
+const softBanModerationSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    default: "soft-ban",
+  },
+  command: {
+    type: String,
+    trim: true,
+    required: true,
+    default: "softban"
+  },
+  description: {
+    type: String,
+    trim: true,
+    default: "Kicks user from the server, deletes their messages from the last 7 days, and sends the user a soft ban notice."
   },
   ...baseModerationSchemaObject,
 });
@@ -91,9 +110,11 @@ const purgeModerationSchema = new mongoose.Schema({
 });
 
 const BanModeration = mongoose.model('BanModeration', banModerationSchema);
+const SoftBanModeration = mongoose.model('SoftBanModeration', softBanModerationSchema);
 const KickModeration = mongoose.model('KickModeration', kickModerationSchema);
 const PurgeModeration = mongoose.model('PurgeModeration', purgeModerationSchema);
 
 exports.BanModeration = BanModeration;
+exports.SoftBanModeration = SoftBanModeration;
 exports.KickModeration = KickModeration;
 exports.PurgeModeration = PurgeModeration;
