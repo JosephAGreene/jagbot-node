@@ -9,7 +9,7 @@ module.exports = {
     if (!bot) return;
     // Find Module
     const module = bot.moderationModules.find((module) => String(module._id) === String(moduleId));
-    if (!module) return;
+    if (!module || !module.enabled) return;
 
     // Do nothing if command sent by a member without allowed role
     const roleMatched = roleMatch(message, module.allowedRoles);

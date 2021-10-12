@@ -71,8 +71,29 @@ const kickModerationSchema = new mongoose.Schema({
   ...baseModerationSchemaObject,
 });
 
+const purgeModerationSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    default: "purge",
+  },
+  command: {
+    type: String,
+    trim: true,
+    required: true,
+    default: "purge"
+  },
+  description: {
+    type: String,
+    trim: true,
+    default: "Bulk deletes up to 100 messages at a time in a single channel."
+  },
+  ...baseModerationSchemaObject,
+});
+
 const BanModeration = mongoose.model('BanModeration', banModerationSchema);
 const KickModeration = mongoose.model('KickModeration', kickModerationSchema);
+const PurgeModeration = mongoose.model('PurgeModeration', purgeModerationSchema);
 
 exports.BanModeration = BanModeration;
 exports.KickModeration = KickModeration;
+exports.PurgeModeration = PurgeModeration;

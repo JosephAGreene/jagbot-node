@@ -44,7 +44,7 @@ async function initiateBot(bot) {
 
     // Add commands from moderationModules
     for (i = 0; i < bot.moderationModules.length; i++) {
-      if (command.type === bot.moderationModules[i].type) {
+      if (bot.moderationModules[i].enabled && command.type === bot.moderationModules[i].type) {
         const moduleId = bot.moderationModules[i]._id;
         botClients[id].commands.set(bot.moderationModules[i].command.toLowerCase(), 
           {execute: async (message) => {command.execute(message, id, moduleId)}}
