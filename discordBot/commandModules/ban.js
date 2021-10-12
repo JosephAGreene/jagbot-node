@@ -63,10 +63,10 @@ module.exports = {
     if (banMember) {
       try {
         await banMember.send(`You have been banned from ${guildName}. \nReason: ${reason ? reason : "none given"}`);
-        await banMember.ban({reason: (reason ? reason : '')});
+        await banMember.ban({days: 7, reason: (reason ? reason : '')});
       } catch (err) {
         try {
-          await banMember.ban({reason: (reason ? reason : '')});
+          await banMember.ban({days: 7, reason: (reason ? reason : '')});
         } catch (err) {
           try {
             message.reply(`Cannot ban member: ${err.message}`);
