@@ -9,7 +9,7 @@ const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { AutoRole } = require("../models/autoRole");
 const { SteamNews } = require("../models/steamNews");
-const { BanModeration, SoftBanModeration, KickModeration, PurgeModeration } = require("../models/moderation");
+const { BanModeration, SoftBanModeration, KickModeration, PurgeModeration, PingModeration } = require("../models/moderation");
 const { initiateBot, verifyBotWithDiscord, returnRoles, returnChannels, returnBotInfo } = require("../discordBot/botClientUtils");
 
 // Get summary information for all bots that
@@ -78,6 +78,7 @@ router.post("/add-new-bot", async (req, res) => {
       new SoftBanModeration(),
       new KickModeration(),
       new PurgeModeration(),
+      new PingModeration(),
     ],
     autoModModules: [
       new InviteFilter(),

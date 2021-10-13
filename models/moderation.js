@@ -109,12 +109,33 @@ const purgeModerationSchema = new mongoose.Schema({
   ...baseModerationSchemaObject,
 });
 
+const pingModerationSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    default: "ping",
+  },
+  command: {
+    type: String,
+    trim: true,
+    required: true,
+    default: "ping"
+  },
+  description: {
+    type: String,
+    trim: true,
+    default: "Returns latency values for bot and Discord API."
+  },
+  ...baseModerationSchemaObject,
+});
+
 const BanModeration = mongoose.model('BanModeration', banModerationSchema);
 const SoftBanModeration = mongoose.model('SoftBanModeration', softBanModerationSchema);
 const KickModeration = mongoose.model('KickModeration', kickModerationSchema);
 const PurgeModeration = mongoose.model('PurgeModeration', purgeModerationSchema);
+const PingModeration = mongoose.model('PingModeration', pingModerationSchema);
 
 exports.BanModeration = BanModeration;
 exports.SoftBanModeration = SoftBanModeration;
 exports.KickModeration = KickModeration;
 exports.PurgeModeration = PurgeModeration;
+exports.PingModeration = PingModeration;

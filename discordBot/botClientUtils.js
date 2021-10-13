@@ -406,6 +406,14 @@ async function returnBotInfo(id, botId, token) {
   return botInfo;
 }
 
+function returnClientLatency(botId) {
+  if (returnStatus(botId)) {
+    return botClients[botId].ws.ping;
+  } else {
+    return false;
+  }
+}
+
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
 exports.verifyBotWithDiscord = verifyBotWithDiscord;
@@ -414,3 +422,4 @@ exports.returnChannels = returnChannels;
 exports.returnRoles = returnRoles;
 exports.returnStatus = returnStatus;
 exports.returnBotInfo = returnBotInfo;
+exports.returnClientLatency = returnClientLatency;
