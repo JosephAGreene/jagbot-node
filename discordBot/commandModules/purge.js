@@ -37,7 +37,7 @@ module.exports = {
 
     try {
       await message.channel.bulkDelete(numArg);
-      await message.channel.send(`${numArg} messaged have been deleted.`);
+      await message.channel.send(`${numArg} messages have been deleted.`);
     } catch (err) {
       console.log(err.message);
     }
