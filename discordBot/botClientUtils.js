@@ -46,18 +46,18 @@ async function initiateBot(bot) {
     for (i = 0; i < bot.moderationModules.length; i++) {
       if (bot.moderationModules[i].enabled && command.type === bot.moderationModules[i].type) {
         const moduleId = bot.moderationModules[i]._id;
-        botClients[id].commands.set(bot.moderationModules[i].command.toLowerCase(), 
-          {execute: async (message) => {command.execute(message, id, moduleId)}}
+        botClients[id].commands.set(bot.moderationModules[i].command.toLowerCase(),
+          { execute: async (message) => { command.execute(message, id, moduleId) } }
         );
       }
-    }    
+    }
 
     // Add commands from customModules
     for (i = 0; i < bot.customModules.length; i++) {
       if (command.type === bot.customModules[i].type) {
         const moduleId = bot.customModules[i]._id;
-        botClients[id].commands.set(bot.customModules[i].command.toLowerCase(), 
-          {execute: async (message) => {command.execute(message, id, moduleId)}}
+        botClients[id].commands.set(bot.customModules[i].command.toLowerCase(),
+          { execute: async (message) => { command.execute(message, id, moduleId) } }
         );
       }
     }
@@ -91,7 +91,6 @@ async function initiateBot(bot) {
   }
 
   const message = async (message) => {
-
     // Do nothing if message is from a bot or dm channel.
     if (message.author.bot || message.channel.type == "dm") return;
 

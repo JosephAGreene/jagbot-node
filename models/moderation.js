@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
-const baseModerationSchemaObject = {
-  enabled: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
+const rolesSchemaObject = {
   allowedRoles: [
     {
       _id: false,
@@ -38,6 +33,11 @@ const banModerationSchema = new mongoose.Schema({
     type: String,
     default: "ban",
   },
+  enabled: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
   command: {
     type: String,
     trim: true,
@@ -48,14 +48,21 @@ const banModerationSchema = new mongoose.Schema({
     type: String,
     trim: true,
     default: "Bans a user from the server, deletes their messages from the last 7 days, and sends the user a ban notice."
+      + "\n\nYou must mention a user to ban. You may provide an optional reason."
+      + "\n`{command} [@usertoban] [optional reason]` \n**Do not type [ ] in the command itself!**"
   },
-  ...baseModerationSchemaObject,
+  ...rolesSchemaObject,
 });
 
 const softBanModerationSchema = new mongoose.Schema({
   type: {
     type: String,
     default: "soft-ban",
+  },
+  enabled: {
+    type: Boolean,
+    required: true,
+    default: false,
   },
   command: {
     type: String,
@@ -67,14 +74,21 @@ const softBanModerationSchema = new mongoose.Schema({
     type: String,
     trim: true,
     default: "Kicks user from the server, deletes their messages from the last 7 days, and sends the user a soft ban notice."
+      + "\n\nYou must mention a user to soft ban. You may provide an optional reason."
+      + "\n`{command} [@usertosoftban] [optional reason]` \n**Do not type [ ] in the command itself!**"
   },
-  ...baseModerationSchemaObject,
+  ...rolesSchemaObject,
 });
 
 const kickModerationSchema = new mongoose.Schema({
   type: {
     type: String,
     default: "kick",
+  },
+  enabled: {
+    type: Boolean,
+    required: true,
+    default: false,
   },
   command: {
     type: String,
@@ -85,15 +99,22 @@ const kickModerationSchema = new mongoose.Schema({
   description: {
     type: String,
     trim: true,
-    default: "Kicks a user from the server."
+    default: "Kicks a user from the server"
+      + "\n\nYou must mention a user to kick. You may provide an optional reason."
+      + "\n`{command} [@usertokick] [optional reason]` \n**Do not type [ ] in the command itself!**"
   },
-  ...baseModerationSchemaObject,
+  ...rolesSchemaObject,
 });
 
 const purgeModerationSchema = new mongoose.Schema({
   type: {
     type: String,
     default: "purge",
+  },
+  enabled: {
+    type: Boolean,
+    required: true,
+    default: false,
   },
   command: {
     type: String,
@@ -105,14 +126,21 @@ const purgeModerationSchema = new mongoose.Schema({
     type: String,
     trim: true,
     default: "Bulk deletes up to 100 messages at a time in a single channel."
+      + "\n\nYou must specify an amount to purge between 2 and 100."
+      + "\n`{command} [number to purge]` \n**Do not type [ ] in the command itself!**"
   },
-  ...baseModerationSchemaObject,
+  ...rolesSchemaObject,
 });
 
 const pingModerationSchema = new mongoose.Schema({
   type: {
     type: String,
     default: "ping",
+  },
+  enabled: {
+    type: Boolean,
+    required: true,
+    default: true,
   },
   command: {
     type: String,
@@ -125,7 +153,31 @@ const pingModerationSchema = new mongoose.Schema({
     trim: true,
     default: "Returns latency values for bot and Discord API."
   },
-  ...baseModerationSchemaObject,
+  ...rolesSchemaObject,
+});
+
+const helpModerationSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    default: "help",
+  },
+  enabled: {
+    type: Boolean,
+    required: true,
+    default: true,
+  },
+  command: {
+    type: String,
+    trim: true,
+    required: true,
+    default: "help"
+  },
+  embedColor: {
+    type: String,
+    trim: true,
+    default: "#FFFFFF",
+  },
+  ...rolesSchemaObject,
 });
 
 const BanModeration = mongoose.model('BanModeration', banModerationSchema);
@@ -133,9 +185,11 @@ const SoftBanModeration = mongoose.model('SoftBanModeration', softBanModerationS
 const KickModeration = mongoose.model('KickModeration', kickModerationSchema);
 const PurgeModeration = mongoose.model('PurgeModeration', purgeModerationSchema);
 const PingModeration = mongoose.model('PingModeration', pingModerationSchema);
+const HelpModeration = mongoose.model("HelpModeration", helpModerationSchema);
 
 exports.BanModeration = BanModeration;
 exports.SoftBanModeration = SoftBanModeration;
 exports.KickModeration = KickModeration;
 exports.PurgeModeration = PurgeModeration;
 exports.PingModeration = PingModeration;
+exports.HelpModeration = HelpModeration;
