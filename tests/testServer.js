@@ -32,9 +32,6 @@ app.use(express.json());
 app.use(injectUser);
 require("../startup/routes")(app);
 
-
-//const {getSteamApps} = require("./startup/steamApps");
-//getSteamApps();
 require("../startup/discordBot")();
 
 const port =  config.get("port") || 5000;

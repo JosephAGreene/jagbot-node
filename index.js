@@ -9,9 +9,6 @@ require("./startup/logging")();
 require("./startup/db")();
 require("./startup/passport")(app);
 require("./startup/routes")(app);
-
-const {getSteamApps} = require("./startup/steamApps");
-getSteamApps();
 require("./startup/discordBot")();
 
 const port = process.env.PORT || config.get("port");
