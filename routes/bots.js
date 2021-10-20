@@ -8,7 +8,6 @@ const { InviteFilter } = require("../models/inviteFilter");
 const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { AutoRole } = require("../models/autoRole");
-const { SteamNews } = require("../models/steamNews");
 const { BanModeration, SoftBanModeration, KickModeration, PurgeModeration, PingModeration, HelpModeration } = require("../models/moderation");
 const { initiateBot, verifyBotWithDiscord, returnRoles, returnChannels, returnBotInfo } = require("../discordBot/botClientUtils");
 
@@ -117,15 +116,10 @@ router.post("/bot-channels", async (req, res) => {
   res.send(botChannels);
 });
 
+router.post("/update-prefix", async (req, res) => {
+  const bot = await Bot.findById(req.body.botId);
 
-router.post("/steam-news", async (req, res) => {
-  const bot = await Bot.findById(req.body._id);
-
-  const newSteamNews = new SteamNews({
-    command: req.body.command,
-  });
-
-  bot.customModules.push(newSteamNews);
+  bot.prefix = req.body.prefix;
 
   await bot.save();
 
