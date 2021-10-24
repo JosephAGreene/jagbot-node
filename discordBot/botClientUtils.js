@@ -413,6 +413,18 @@ function returnClientLatency(botId) {
   }
 }
 
+async function setBotUsername(botId, newUserName) {
+  if (returnStatus(botId)) {
+    try {
+      await botClients[botId].user.setUsername(newUserName);
+      return true;
+    } catch (err) {
+      return err.message;
+    }
+  }
+  return false;
+}
+
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
 exports.verifyBotWithDiscord = verifyBotWithDiscord;
@@ -422,3 +434,4 @@ exports.returnRoles = returnRoles;
 exports.returnStatus = returnStatus;
 exports.returnBotInfo = returnBotInfo;
 exports.returnClientLatency = returnClientLatency;
+exports.setBotUsername = setBotUsername;
