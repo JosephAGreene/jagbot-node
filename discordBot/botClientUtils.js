@@ -416,13 +416,26 @@ function returnClientLatency(botId) {
 async function setBotUsername(botId, newUserName) {
   if (returnStatus(botId)) {
     try {
-      await botClients[botId].user.setUsername(newUserName);
-      return true;
+      // 1 second race condition to be tested against discord's setUserName 
+      // api call. If the race condition wins, it is assumed that discord
+      // has rate limited our api requests
+      const raceCondition = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve("race condition");
+        }, 1000);
+      })
+      const result = await Promise.race([botClients[botId].user.setUsername(newUserName), raceCondition]);
+
+      if (result === "race condition") {
+        return {status: 429}
+      } else {
+        return {status: 200};
+      }
     } catch (err) {
-      return err.message;
+      return {status: 429};
     }
   }
-  return false;
+  return {status: 418};
 }
 
 exports.botClients = botClients;
