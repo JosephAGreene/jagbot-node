@@ -427,15 +427,29 @@ async function setBotUsername(botId, newUserName) {
       const result = await Promise.race([botClients[botId].user.setUsername(newUserName), raceCondition]);
 
       if (result === "race condition") {
-        return {status: 429}
+        return { status: 429 }
       } else {
-        return {status: 200};
+        return { status: 200 };
       }
     } catch (err) {
-      return {status: 429};
+      return { status: 429 };
     }
   }
-  return {status: 418};
+  return { status: 418 };
+}
+
+async function destroyBot(botId) {
+  if (returnStatus(botId)) {
+    try {
+      await botClients[botId].destroy();
+      delete botClients[botId];
+      return true;
+    } catch (err) {
+      return false;
+    }
+  } else {
+    return true;
+  }
 }
 
 exports.botClients = botClients;
@@ -448,3 +462,4 @@ exports.returnStatus = returnStatus;
 exports.returnBotInfo = returnBotInfo;
 exports.returnClientLatency = returnClientLatency;
 exports.setBotUsername = setBotUsername;
+exports.destroyBot = destroyBot;
