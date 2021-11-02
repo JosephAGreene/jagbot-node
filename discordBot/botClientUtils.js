@@ -452,6 +452,27 @@ async function destroyBot(botId) {
   }
 }
 
+// Verify that provided token is both a valid discord bot token
+// AND that is has the necessary intents required to operate
+async function verifyBotToken(botToken) {
+  let result = {error: false, type: 'unknown'};
+  const bot = new Discord.Client({ intents: baseIntents });
+  try {
+    await bot.login(botToken);
+    bot.destroy();
+    return result;
+  } catch (err) {
+    result.error = true;
+    if (err.message.toLowerCase().includes('token')) {
+      result.type = 'token'; 
+    } else if (err.message.toLowerCase().includes('intent')) {
+      result.type = 'intent';
+    } 
+    bot.destroy();
+    return result;
+  }
+}
+
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
 exports.verifyBotWithDiscord = verifyBotWithDiscord;
@@ -462,4 +483,5 @@ exports.returnStatus = returnStatus;
 exports.returnBotInfo = returnBotInfo;
 exports.returnClientLatency = returnClientLatency;
 exports.setBotUsername = setBotUsername;
+exports.verifyBotToken = verifyBotToken;
 exports.destroyBot = destroyBot;
