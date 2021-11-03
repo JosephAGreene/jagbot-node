@@ -455,7 +455,7 @@ async function destroyBot(botId) {
 // Verify that provided token is both a valid discord bot token
 // AND that is has the necessary intents required to operate
 async function verifyBotToken(botToken) {
-  let result = {error: false, type: 'unknown'};
+  let result = {error: false, type: 'unknown', message: null};
   const bot = new Discord.Client({ intents: baseIntents });
   try {
     await bot.login(botToken);
@@ -463,6 +463,7 @@ async function verifyBotToken(botToken) {
     return result;
   } catch (err) {
     result.error = true;
+    result.message = err.message;
     if (err.message.toLowerCase().includes('token')) {
       result.type = 'token'; 
     } else if (err.message.toLowerCase().includes('intent')) {
