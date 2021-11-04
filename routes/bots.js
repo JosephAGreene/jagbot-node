@@ -9,7 +9,16 @@ const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { AutoRole } = require("../models/autoRole");
 const { BanModeration, SoftBanModeration, KickModeration, PurgeModeration, PingModeration, HelpModeration } = require("../models/moderation");
-const { initiateBot, verifyBotWithDiscord, returnRoles, returnChannels, returnBotInfo } = require("../discordBot/botClientUtils");
+const { 
+  initiateBot, 
+  verifyBotWithDiscord, 
+  returnRoles, 
+  returnChannels, 
+  returnBotInfo, 
+  setBotUsername,
+  verifyBotToken,
+  destroyBot, 
+} = require("../discordBot/botClientUtils");
 
 // Get summary information for all bots that
 // belong to a single user.
@@ -122,6 +131,59 @@ router.post("/update-prefix", async (req, res) => {
   bot.prefix = req.body.prefix;
 
   await bot.save();
+
+  initiateBot(bot);
+
+  res.send(bot);
+});
+
+router.post("/update-name", async (req, res) => {
+  const bot = await Bot.findById(req.body.botId);
+
+  const result = await setBotUsername(req.body.botId, req.body.name);
+
+  if (result.status === 400) {
+    return res.status(400).send(result.message);
+  }
+
+  if (result.status !== 200) {
+    return res.status(result.status).send();
+  }
+
+  if (result.status === 200) {
+    bot.name = req.body.name;
+  }
+
+  await bot.save();
+
+  initiateBot(bot);
+
+  res.send(bot);
+});
+
+router.post("/update-token", async (req, res) => {
+  const bot = await Bot.findById(req.body.botId);
+
+  const result = await verifyBotToken(req.body.token, bot.botId);
+  
+  if (result.error) {
+    switch (result.type) {
+      case 'botUserId':
+        return res.status(418).send('Token is invalid! You cannot use tokens from another bot application!');
+      case 'token':
+        return res.status(418).send('Token is invalid!');
+      case 'intent':
+        return res.status(418).send('Token does not possess required intents!');
+      default:
+        return res.status(400).send(result.message);
+    }
+  }
+
+  bot.botToken = req.body.token;
+
+  await bot.save();
+
+  await destroyBot(bot._id);
 
   initiateBot(bot);
 
