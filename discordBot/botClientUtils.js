@@ -452,23 +452,30 @@ async function destroyBot(botId) {
   }
 }
 
-// Verify that provided token is both a valid discord bot token
-// AND that is has the necessary intents required to operate
-async function verifyBotToken(botToken) {
-  let result = {error: false, type: 'unknown', message: null};
+// Verify that provided token is both a valid discord bot token from
+// the same discord application AND that is has the necessary intents required to operate
+async function verifyBotToken(botToken, botUserId) {
+  let result = { error: false, type: 'unknown', message: null };
   const bot = new Discord.Client({ intents: baseIntents });
   try {
     await bot.login(botToken);
+    // If the bot's user id from discord does not match the one returned
+    // from the new token, then it can be concluded that this a token from
+    // another application and error must be thrown. 
+    if (bot.user.id !== botUserId) {
+      result.error = true;
+      result.type = 'botUserId';
+    }
     bot.destroy();
     return result;
   } catch (err) {
     result.error = true;
     result.message = err.message;
     if (err.message.toLowerCase().includes('token')) {
-      result.type = 'token'; 
+      result.type = 'token';
     } else if (err.message.toLowerCase().includes('intent')) {
       result.type = 'intent';
-    } 
+    }
     bot.destroy();
     return result;
   }
