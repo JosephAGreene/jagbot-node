@@ -16,6 +16,7 @@ const {
   returnChannels, 
   returnBotInfo, 
   setBotUsername,
+  setBotActivity,
   verifyBotToken,
   destroyBot, 
 } = require("../discordBot/botClientUtils");
@@ -186,6 +187,30 @@ router.post("/update-token", async (req, res) => {
   await destroyBot(bot._id);
 
   initiateBot(bot);
+
+  res.send(bot);
+});
+
+router.post("/update-activity", async (req, res) => {
+  const bot = await Bot.findById(req.body.botId);
+
+  const result = await setBotActivity(bot._id, req.body.activityType, req.body.activityText);
+
+  if (result.error) {
+    switch (result.type) {
+      case 'offline':
+        return res.status(418).send('Bot activity cannot be changed while bot is offline!');
+      case 'discord':
+        return res.status(418).send('Something went wrong. Try again later.');
+      default:
+        return res.status(400).send('Unknown Error');
+    }
+  }
+
+  bot.activityType = req.body.activityType;
+  bot.activityText = req.body.activityType === "none" ? "" : req.body.activityText;
+
+  await bot.save();
 
   res.send(bot);
 });
