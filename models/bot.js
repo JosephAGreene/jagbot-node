@@ -29,6 +29,16 @@ const botSchema = new mongoose.Schema({
     trim: true,
     required: true,
   },
+  activityType: {
+    type: String,
+    trim: true,
+    default: 'none',
+  },
+  activityText: {
+    type: String,
+    trim: true,
+    default: "",
+  },
   creationDate: {
     type: Date,
     required: true,
