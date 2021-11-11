@@ -79,10 +79,10 @@ async function initiateBot(bot) {
   if (!reInit) {
     try {
       await botClients[id].login(bot.botToken);
-
       await botClients[id].once('ready', () => {
         console.log(`Ready: ${botClients[id].botId}`);
       });
+      setBotActivity(id, bot.activityType, bot.activityText);
     } catch (err) {
       console.log(`Error: ${botClients[id].botId} - ${err.message}`);
       delete botClients[id];
@@ -481,6 +481,29 @@ async function verifyBotToken(botToken, botUserId) {
   }
 }
 
+async function setBotActivity(botId, activityType, activityText) {
+  let result = { error: false, type: 'unknown', message: null };
+  if (returnStatus(botId)) {
+    try {
+      if (activityType === 'none') {
+        await botClients[botId].user.setActivity();
+      } else {
+        await botClients[botId].user.setActivity(activityText, { type: activityType.toUpperCase() });
+      }
+      return result;
+    } catch (err) {
+      result.error = true;
+      result.type = 'discord';
+      result.message = err.message;
+      return result;
+    }
+  } else {
+    result.error = true;
+    result.type = 'offline';
+    return result;
+  }
+}
+
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
 exports.verifyBotWithDiscord = verifyBotWithDiscord;
@@ -493,3 +516,4 @@ exports.returnClientLatency = returnClientLatency;
 exports.setBotUsername = setBotUsername;
 exports.verifyBotToken = verifyBotToken;
 exports.destroyBot = destroyBot;
+exports.setBotActivity = setBotActivity;
