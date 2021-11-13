@@ -18,7 +18,7 @@ const baseIntents = [
 // Initiate a single bot client
 // bot parameter is expected to be bot object from database
 async function initiateBot(bot) {
-  if (!bot.active) return;
+  if (!bot.enabled) return;
   const id = bot._id;
   const reInit = (botClients[id] ? true : false);
 

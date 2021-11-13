@@ -44,7 +44,7 @@ const botSchema = new mongoose.Schema({
     required: true,
     default: Date.now,
   },
-  active: {
+  enabled: {
     type: Boolean,
     default: true,
   },
