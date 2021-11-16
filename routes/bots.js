@@ -215,4 +215,25 @@ router.post("/update-activity", async (req, res) => {
   res.send(bot);
 });
 
+router.post("/update-enabled", async (req, res) => {
+  const bot = await Bot.findById(req.body.botId);
+
+  if (req.body.enabled) {
+    bot.enabled = true;
+    const restart = initiateBot(bot);
+    if (!restart) {
+      bot.enabled = false;
+      await bot.save();
+      res.status(418).send("Cant restart");
+    }
+  } else {
+    bot.enabled = false;
+    await destroyBot(bot._id);
+  }
+
+  await bot.save();
+
+  res.send(bot);
+});
+
 module.exports = router;

@@ -86,7 +86,7 @@ async function initiateBot(bot) {
     } catch (err) {
       console.log(`Error: ${botClients[id].botId} - ${err.message}`);
       delete botClients[id];
-      return;
+      return false;
     }
   }
 
@@ -212,6 +212,8 @@ async function initiateBot(bot) {
   if (bannedCheck) {
     botClients[id].on('guildBanAdd', banned);
   }
+
+  return true;
 }
 
 // Attempts to login with given bot token
