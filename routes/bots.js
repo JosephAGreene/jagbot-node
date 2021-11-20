@@ -218,22 +218,45 @@ router.post("/update-activity", async (req, res) => {
 router.post("/update-enabled", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
-  if (req.body.enabled) {
-    bot.enabled = true;
-    const restart = initiateBot(bot);
-    if (!restart) {
-      bot.enabled = false;
-      await bot.save();
-      res.status(418).send("Cant restart");
-    }
-  } else {
-    bot.enabled = false;
-    await destroyBot(bot._id);
+  // If requested enabled boolean already matches bot enabled and status boolean
+  // then desired outcome is already established. Throw an error.
+  if (req.body.enabled === bot.enabled && bot.status === bot.enabled) {
+    return res.status(418).send(`Bot is already ${bot.enabled ? 'running' : 'disabled'}`);
   }
 
-  await bot.save();
+  if (req.body.enabled) {
+    bot.enabled = true;
+    const restart = await initiateBot(bot);
+    // If resart fails, then throw an error
+    if (!restart) {
+      bot.enabled = false;
+      bot.status = false;
+      await bot.save();
+      return res.status(418).send("Something went wrong. Cannot start bot.");
+    }
+    // If restart is successfull, the set enabled and status to true and save
+    bot.status = true;
+    await bot.save();
+  } else {
+    // If request is to disabled bot, attempt to destroy it
+    const destroyed = await destroyBot(bot._id);
+    // If bot is destroyed successfully, set enabled and status to false and save
+    if (!destroyed.error) {
+      bot.enabled = false;
+      bot.status = false;
+      await bot.save();
+    } else {
+      return res.status(418).send("Something went wrong. Cannot disable bot.")
+    }
+  }
 
   res.send(bot);
+});
+
+router.delete("/delete-bot", auth, async (req, res) => {
+  console.log(req.user);
+  console.log(req.body.botId);
+  res.status(200).send('Deleted');
 });
 
 module.exports = router;
