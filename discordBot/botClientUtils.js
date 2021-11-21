@@ -19,6 +19,7 @@ const baseIntents = [
 // bot parameter is expected to be bot object from database
 async function initiateBot(bot) {
   if (!bot.enabled) return;
+  let result = {error: false, message: ''};
   const id = bot._id;
   const reInit = (botClients[id] ? true : false);
 
@@ -86,7 +87,9 @@ async function initiateBot(bot) {
     } catch (err) {
       console.log(`Error: ${botClients[id].botId} - ${err.message}`);
       delete botClients[id];
-      return false;
+      result.error = true;
+      result.message = err.message;
+      return result;
     }
   }
 
@@ -213,7 +216,7 @@ async function initiateBot(bot) {
     botClients[id].on('guildBanAdd', banned);
   }
 
-  return true;
+  return result;
 }
 
 // Attempts to login with given bot token
@@ -441,16 +444,19 @@ async function setBotUsername(botId, newUserName) {
 }
 
 async function destroyBot(botId) {
+  let result = {error: false, message: ''};
   if (returnStatus(botId)) {
     try {
       await botClients[botId].destroy();
       delete botClients[botId];
-      return true;
+      return result;
     } catch (err) {
-      return false;
+      result.error = true;
+      result.message = err.message;
+      return result;
     }
   } else {
-    return true;
+    return result;
   }
 }
 

@@ -221,18 +221,21 @@ router.post("/update-enabled", async (req, res) => {
   // If requested enabled boolean already matches bot enabled and status boolean
   // then desired outcome is already established. Throw an error.
   if (req.body.enabled === bot.enabled && bot.status === bot.enabled) {
-    return res.status(418).send(`Bot is already ${bot.enabled ? 'running' : 'disabled'}`);
+    return res.status(418).send(`Bot is already ${bot.enabled ? 'enabled' : 'disabled'}`);
   }
 
   if (req.body.enabled) {
     bot.enabled = true;
     const restart = await initiateBot(bot);
     // If resart fails, then throw an error
-    if (!restart) {
+    if (restart.error) {
       bot.enabled = false;
       bot.status = false;
       await bot.save();
-      return res.status(418).send("Something went wrong. Cannot start bot.");
+      if (restart.message.toLowerCase().includes('intent')) {
+        return res.status(418).send("Privileged intents not properly set. Cannot enable bot.");
+      }
+      return res.status(418).send("Something went wrong. Cannot enable bot.");
     }
     // If restart is successfull, the set enabled and status to true and save
     bot.status = true;
