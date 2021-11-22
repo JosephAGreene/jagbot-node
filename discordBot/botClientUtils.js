@@ -381,7 +381,8 @@ function returnAvatarUrl(userId, avatarId) {
   return `https://cdn.discordapp.com/avatars/${userId}/${avatarId}.png`;
 }
 
-// Return bot status as an active client
+// Return true is bot is currently active on server
+// and false if not
 function returnStatus(id) {
   const status = botClients[id];
 
@@ -395,14 +396,14 @@ async function returnBotInfo(id, botId, token) {
 
   if (returnStatus(id)) {
     const botFetch = await botClients[id].users.fetch(botId);
-    botInfo.status = true;
+    botInfo.enabled = true;
     botInfo.name = botFetch.username;
     botInfo.avatarUrl = returnAvatarUrl(botId, botFetch.avatar);
   } else {
     const bot = new Discord.Client({ intents: Discord.Intents.FLAGS.GUILDS });
     await bot.login(token);
     const botFetch = await bot.users.fetch(botId);
-    botInfo.status = false;
+    botInfo.enabled = false;
     botInfo.name = botFetch.username;
     botInfo.avatarUrl = returnAvatarUrl(botId, botFetch.avatar);
     bot.destroy();

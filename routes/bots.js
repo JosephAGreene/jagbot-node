@@ -41,7 +41,7 @@ router.get("/summary", auth, async (req, res) => {
       creationDate: bots[i].creationDate,
       name: botInfo.name,
       avatarURL: botInfo.avatarUrl,
-      status: botInfo.status,
+      enabled: botInfo.enabled,
       moduleCount: moduleCount,
     });
   }
@@ -54,7 +54,7 @@ router.get("/summary", auth, async (req, res) => {
 router.post("/checkout-bot", async (req, res) => {
   let bot = await Bot.findById(req.body._id);
   
-  bot.set('status', req.body.status);
+  bot.set('enabled', req.body.enabled);
   bot.set('avatarURL', req.body.avatarURL);
   bot.set('name', req.body.name);
   bot.set('serverRoles', await returnRoles(bot._id, bot.botToken));
@@ -218,9 +218,9 @@ router.post("/update-activity", async (req, res) => {
 router.post("/update-enabled", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
-  // If requested enabled boolean already matches bot enabled and status boolean
+  // If requested enabled boolean already matches bot enabled boolean,
   // then desired outcome is already established. Throw an error.
-  if (req.body.enabled === bot.enabled && bot.status === bot.enabled) {
+  if (req.body.enabled === bot.enabled) {
     return res.status(418).send(`Bot is already ${bot.enabled ? 'enabled' : 'disabled'}`);
   }
 
@@ -230,7 +230,6 @@ router.post("/update-enabled", async (req, res) => {
     // If resart fails, then throw an error
     if (restart.error) {
       bot.enabled = false;
-      bot.status = false;
       await bot.save();
       if (restart.message.toLowerCase().includes('intent')) {
         return res.status(418).send("Privileged intents not properly set. Cannot enable bot.");
@@ -238,7 +237,7 @@ router.post("/update-enabled", async (req, res) => {
       return res.status(418).send("Something went wrong. Cannot enable bot.");
     }
     // If restart is successfull, the set enabled and status to true and save
-    bot.status = true;
+    bot.enabled = true;
     await bot.save();
   } else {
     // If request is to disabled bot, attempt to destroy it
@@ -246,7 +245,6 @@ router.post("/update-enabled", async (req, res) => {
     // If bot is destroyed successfully, set enabled and status to false and save
     if (!destroyed.error) {
       bot.enabled = false;
-      bot.status = false;
       await bot.save();
     } else {
       return res.status(418).send("Something went wrong. Cannot disable bot.")

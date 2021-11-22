@@ -48,10 +48,6 @@ const botSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  status: {
-    type: Boolean,
-    default: true,
-  },
   serverRoles: [
     {
       _id: false,
