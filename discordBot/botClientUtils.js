@@ -219,31 +219,6 @@ async function initiateBot(bot) {
   return result;
 }
 
-// Attempts to login with given bot token
-// Returns appropriate errors if there is a problem
-// Returns basic information on the bot application if successful 
-async function verifyBotWithDiscord(token) {
-  const bot = new Discord.Client({ intents: baseIntents });
-
-  try {
-    await bot.login(token);
-  }
-  catch (err) {
-    bot.destroy();
-    return { "error": err.name };
-  }
-
-  const info = {
-    "error": false,
-    "id": bot.user.id,
-    "name": bot.user.username,
-  }
-
-  bot.destroy();
-
-  return info;
-}
-
 // Return discord channel object
 async function returnChannelObject(clientId, channelId) {
   // Fetch guilds with await to gaurantee cache accuracy 
@@ -463,15 +438,19 @@ async function destroyBot(botId) {
 
 // Verify that provided token is both a valid discord bot token from
 // the same discord application AND that is has the necessary intents required to operate
-async function verifyBotToken(botToken, botUserId) {
-  let result = { error: false, type: 'unknown', message: null };
+async function verifyBotToken(botToken, newBot, botUserId) {
+  let result = { error: false, type: 'unknown', message: null, botId: undefined, botName: undefined };
   const bot = new Discord.Client({ intents: baseIntents });
   try {
     await bot.login(botToken);
+    result.botId = bot.user.id;
+    result.botName = bot.user.username;
     // If the bot's user id from discord does not match the one returned
     // from the new token, then it can be concluded that this a token from
-    // another application and error must be thrown. 
-    if (bot.user.id !== botUserId) {
+    // another application and error must be thrown. This check is skipped
+    // in the event the newBot parameter is "true", as there won't be a botUserId
+    // to confirm in that case.
+    if (!newBot && bot.user.id !== botUserId) {
       result.error = true;
       result.type = 'botUserId';
     }
@@ -515,7 +494,6 @@ async function setBotActivity(botId, activityType, activityText) {
 
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
-exports.verifyBotWithDiscord = verifyBotWithDiscord;
 exports.returnChannelObject = returnChannelObject;
 exports.returnChannels = returnChannels;
 exports.returnRoles = returnRoles;
