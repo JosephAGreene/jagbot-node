@@ -11,7 +11,6 @@ const { AutoRole } = require("../models/autoRole");
 const { BanModeration, SoftBanModeration, KickModeration, PurgeModeration, PingModeration, HelpModeration } = require("../models/moderation");
 const { 
   initiateBot, 
-  verifyBotWithDiscord, 
   returnRoles, 
   returnChannels, 
   returnBotInfo, 
@@ -66,21 +65,52 @@ router.post("/checkout-bot", async (req, res) => {
 });
 
 router.post("/add-new-bot", async (req, res) => {
-  let user = await User.findById(req.body.user);
+  let user = await User.findById(req.user._id).populate('bots');
+
+  // If prefix or token is already in use, return error
+  let duplicatePrefix = false;
+  let duplicateToken = false;
+  for (let i = 0; i < user.bots.length; i++) {
+    if (user.bots[i].prefix === req.body.prefix.trim()) {
+      duplicatePrefix = true;
+      break;
+    }
+    if (user.bots[i].botToken === req.body.botToken.trim()) {
+      duplicateToken = true;
+      break;
+    }
+  }
+  if (duplicatePrefix) {
+    return res.status(418).send({error: 'prefix', message: 'Prefix is already in use for another bot you own!'});
+  }
+  if (duplicateToken) {
+    return res.status(418).send({error: 'token', message: 'Token is already in use for another bot you own!'});
+  }
 
   // Verify bot's information with Discord
-  const botInfo = await verifyBotWithDiscord(req.body.botToken);
+  const tokenResult = await verifyBotToken(req.body.botToken, true);
 
   // If an error property exists, then something went wrong with the 
   // bot verification with discord. Possible issues of interest include
   // an invalid bot token or bot tokens with improper intent settings. 
-  if (botInfo.error) { return res.status(409).send(botInfo.error) };
+  if (tokenResult.error) {
+    switch (tokenResult.type) {
+      case 'botUserId':
+        return res.status(418).send({error: 'token', message: 'Token is invalid! You cannot use tokens from another bot application!'});
+      case 'token':
+        return res.status(418).send({error: 'token', message: 'Token is invalid!'});
+      case 'intent':
+        return res.status(418).send({error: 'token', message: 'Token does not possess required intents!'});
+      default:
+        return res.status(400).send(tokenResult.message);
+    }
+  }
 
   let bot = new Bot({
-    owner: user,
+    owner: req.user._id,
     botToken: req.body.botToken,
-    botId: botInfo.id,
-    name: botInfo.name,
+    botId: tokenResult.botId,
+    name: tokenResult.botName,
     prefix: req.body.prefix,
     moderationModules: [
       new BanModeration(),
@@ -99,7 +129,7 @@ router.post("/add-new-bot", async (req, res) => {
     ]
   });
 
-  bot = await bot.save();
+  await bot.save();
 
   user.bots.push(bot._id);
 
@@ -165,7 +195,7 @@ router.post("/update-name", async (req, res) => {
 router.post("/update-token", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
-  const result = await verifyBotToken(req.body.token, bot.botId);
+  const result = await verifyBotToken(req.body.token, false, bot.botId);
   
   if (result.error) {
     switch (result.type) {
