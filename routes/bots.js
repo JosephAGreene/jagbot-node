@@ -285,8 +285,24 @@ router.post("/update-enabled", async (req, res) => {
 });
 
 router.delete("/delete-bot", auth, async (req, res) => {
-  console.log(req.user);
-  console.log(req.body.botId);
+  let user = await User.findById(req.user._id);
+  
+  let botIndex = false;
+  for(let i=0; i < user.bots.length; i++) {
+    if(String(user.bots[i]) === String(req.body.botId)) {
+      botIndex = i;
+      break;
+    }
+  }
+  if (botIndex === false) {
+    res.status(404).send('Bot not found under this owner.');
+  }
+
+  user.bots.splice(botIndex, 1);
+  await user.save();
+
+  let bot = await Bot.findByIdAndDelete(req.body.botId);
+
   res.status(200).send('Deleted');
 });
 
