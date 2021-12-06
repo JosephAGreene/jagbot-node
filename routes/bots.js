@@ -1,5 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const multer = require('multer');
+const fs = require('fs');
+const upload = multer({ dest: 'uploads/' });
 const auth = require("../middleware/auth");
 const { Bot } = require("../models/bot");
 const { User } = require("../models/user");
@@ -9,27 +12,28 @@ const { MassCapsFilter } = require("../models/massCapsFilter");
 const { MassMentionsFilter } = require("../models/massMentionsFilter");
 const { AutoRole } = require("../models/autoRole");
 const { BanModeration, SoftBanModeration, KickModeration, PurgeModeration, PingModeration, HelpModeration } = require("../models/moderation");
-const { 
-  initiateBot, 
-  returnRoles, 
-  returnChannels, 
-  returnBotInfo, 
+const {
+  initiateBot,
+  returnRoles,
+  returnChannels,
+  returnBotInfo,
   setBotUsername,
   setBotActivity,
+  setBotAvatar,
   verifyBotToken,
-  destroyBot, 
+  destroyBot,
 } = require("../discordBot/botClientUtils");
 
 // Get summary information for all bots that
 // belong to a single user.
 router.get("/summary", auth, async (req, res) => {
-  let bots = await Bot.find({owner: req.user._id});
+  let bots = await Bot.find({ owner: req.user._id });
 
   let botSummary = [];
 
-  for (let i=0; i < bots.length; i++) {
+  for (let i = 0; i < bots.length; i++) {
     let moduleCount = bots[i].customModules.length;
-    for (let j=0; j < bots[i].autoModModules.length; j++) {
+    for (let j = 0; j < bots[i].autoModModules.length; j++) {
       if (bots[i].autoModModules[j].enabled) {
         moduleCount++;
       }
@@ -52,7 +56,7 @@ router.get("/summary", auth, async (req, res) => {
 // before returning all the bot's info
 router.post("/checkout-bot", async (req, res) => {
   let bot = await Bot.findById(req.body._id);
-  
+
   bot.set('enabled', req.body.enabled);
   bot.set('avatarURL', req.body.avatarURL);
   bot.set('name', req.body.name);
@@ -81,10 +85,10 @@ router.post("/add-new-bot", async (req, res) => {
     }
   }
   if (duplicatePrefix) {
-    return res.status(418).send({error: 'prefix', message: 'Prefix is already in use for another bot you own!'});
+    return res.status(418).send({ error: 'prefix', message: 'Prefix is already in use for another bot you own!' });
   }
   if (duplicateToken) {
-    return res.status(418).send({error: 'token', message: 'Token is already in use for another bot you own!'});
+    return res.status(418).send({ error: 'token', message: 'Token is already in use for another bot you own!' });
   }
 
   // Verify bot's information with Discord
@@ -96,11 +100,11 @@ router.post("/add-new-bot", async (req, res) => {
   if (tokenResult.error) {
     switch (tokenResult.type) {
       case 'botUserId':
-        return res.status(418).send({error: 'token', message: 'Token is invalid! You cannot use tokens from another bot application!'});
+        return res.status(418).send({ error: 'token', message: 'Token is invalid! You cannot use tokens from another bot application!' });
       case 'token':
-        return res.status(418).send({error: 'token', message: 'Token is invalid!'});
+        return res.status(418).send({ error: 'token', message: 'Token is invalid!' });
       case 'intent':
-        return res.status(418).send({error: 'token', message: 'Token does not possess required intents!'});
+        return res.status(418).send({ error: 'token', message: 'Token does not possess required intents!' });
       default:
         return res.status(400).send(tokenResult.message);
     }
@@ -168,6 +172,38 @@ router.post("/update-prefix", async (req, res) => {
   res.send(bot);
 });
 
+router.post("/update-avatar", upload.single('avatar'), async (req, res) => {
+  const bot = await Bot.findById(req.body.botId);
+
+  const result = await setBotAvatar(req.body.botId, bot.botId, req.file.path);
+
+  // remove file from uploads folder as it's not longer needed at this point
+  fs.unlink(req.file.path, (err) => {
+    if (err) {
+      console.log(err.message);
+    }
+  });
+
+  if (result.error) {
+    switch (result.type) {
+      case 'offline':
+        return res.status(418).send('Avatar cannot be changed while bot is offline!');
+      case 'rate limit':
+        return res.status(418).send('You have been rate limited for changing avatars too quickly. Try again later.');
+      case 'file size':
+        return res.status(418).send('Something went wrong. Try again later.');
+      default:
+        return res.status(400).send(result.message);
+    }
+  }
+
+  bot.avatarURL = result.avatarURL;
+
+  await bot.save();
+
+  res.send(bot);
+});
+
 router.post("/update-name", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
@@ -196,7 +232,7 @@ router.post("/update-token", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   const result = await verifyBotToken(req.body.token, false, bot.botId);
-  
+
   if (result.error) {
     switch (result.type) {
       case 'botUserId':
@@ -286,10 +322,10 @@ router.post("/update-enabled", async (req, res) => {
 
 router.delete("/delete-bot", auth, async (req, res) => {
   let user = await User.findById(req.user._id);
-  
+
   let botIndex = false;
-  for(let i=0; i < user.bots.length; i++) {
-    if(String(user.bots[i]) === String(req.body.botId)) {
+  for (let i = 0; i < user.bots.length; i++) {
+    if (String(user.bots[i]) === String(req.body.botId)) {
       botIndex = i;
       break;
     }
