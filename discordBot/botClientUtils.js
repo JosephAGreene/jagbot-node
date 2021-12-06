@@ -19,7 +19,7 @@ const baseIntents = [
 // bot parameter is expected to be bot object from database
 async function initiateBot(bot) {
   if (!bot.enabled) return;
-  let result = {error: false, message: ''};
+  let result = { error: false, message: '' };
   const id = bot._id;
   const reInit = (botClients[id] ? true : false);
 
@@ -420,7 +420,7 @@ async function setBotUsername(botId, newUserName) {
 }
 
 async function destroyBot(botId) {
-  let result = {error: false, message: ''};
+  let result = { error: false, message: '' };
   if (returnStatus(botId)) {
     try {
       await botClients[botId].destroy();
@@ -492,6 +492,36 @@ async function setBotActivity(botId, activityType, activityText) {
   }
 }
 
+// botId = MongoDB ObjectId for bot document
+// discordId = user id from discord (botId property on bot document)
+// path = path to file on local storage
+async function setBotAvatar(botId, discordId, path) {
+  let result = { error: false, type: 'unknown', message: null, avatarURL: undefined };
+
+  if (returnStatus(botId)) {
+    // It appears that setAvatar won't always return errors,
+    // sometimes opting to simply set avatar values to null
+    try {
+      let client = await botClients[botId].user.setAvatar(path);
+      result.avatarURL = returnAvatarUrl(discordId, client.avatar);
+      return result;
+    } catch (err) {
+      result.error = true;
+      result.message = err.message;
+      if (err.message.toLowerCase().includes('fast')) {
+        result.type = 'rate limit';
+      } else if (err.message.toLowerCase().includes('larger')) {
+        result.type = 'file size';
+      } 
+      return result;
+    }
+  } else {
+    result.error = true;
+    result.type = 'offline';
+    return result;
+  }
+}
+
 exports.botClients = botClients;
 exports.initiateBot = initiateBot;
 exports.returnChannelObject = returnChannelObject;
@@ -504,3 +534,4 @@ exports.setBotUsername = setBotUsername;
 exports.verifyBotToken = verifyBotToken;
 exports.destroyBot = destroyBot;
 exports.setBotActivity = setBotActivity;
+exports.setBotAvatar = setBotAvatar;
