@@ -395,6 +395,7 @@ function returnClientLatency(botId) {
 }
 
 async function setBotUsername(botId, newUserName) {
+  let result = {error: false, type: '', message: ''}
   if (returnStatus(botId)) {
     try {
       // 1 second race condition to be tested against discord's setUserName 
@@ -403,20 +404,29 @@ async function setBotUsername(botId, newUserName) {
       const raceCondition = new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve("race condition");
-        }, 1000);
+        }, 2500);
       })
-      const result = await Promise.race([botClients[botId].user.setUsername(newUserName), raceCondition]);
-
-      if (result === "race condition") {
-        return { status: 429 }
-      } else {
-        return { status: 200 };
+      const changeName = await Promise.race([botClients[botId].user.setUsername(newUserName), raceCondition]);
+      if (changeName === 'race condition') {
+        result.error = true;
+        result.type = 'rate limit';
       }
+      return result;
     } catch (err) {
-      return { status: 429 };
+      result.error = true;
+      if (err.message.toLowerCase().includes('fast')) {
+        result.type = 'rate limit';
+      } else {
+        result.type = 'unknown';
+        result.message = err.message;
+      }
+      return result;
     }
+  } else {
+    result.error = true;
+    result.type = 'offline';
+    return result;
   }
-  return { status: 418 };
 }
 
 async function destroyBot(botId) {

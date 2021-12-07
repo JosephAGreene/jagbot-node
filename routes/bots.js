@@ -208,22 +208,23 @@ router.post("/update-name", async (req, res) => {
   const bot = await Bot.findById(req.body.botId);
 
   const result = await setBotUsername(req.body.botId, req.body.name);
-
-  if (result.status === 400) {
-    return res.status(400).send(result.message);
+  
+  if (result.error) {
+    switch (result.type) {
+      case 'rate limit':
+        return res.status(418).send("You've been rate limited. Name changes are limited to 2 per hour.");
+      case 'offline':
+        return res.status(418).send('Bot name cannot be changed while bot is offline!');
+      case 'unknown':
+        return res.status(400).send(result.message);
+      default:
+        return res.status(400).send(result.message);
+    }
   }
 
-  if (result.status !== 200) {
-    return res.status(result.status).send();
-  }
-
-  if (result.status === 200) {
-    bot.name = req.body.name;
-  }
+  bot.name = req.body.name;
 
   await bot.save();
-
-  initiateBot(bot);
 
   res.send(bot);
 });
