@@ -161,7 +161,20 @@ router.post("/bot-channels", async (req, res) => {
 });
 
 router.post("/update-prefix", async (req, res) => {
-  const bot = await Bot.findById(req.body.botId);
+  let user = await User.findById(req.user._id).populate('bots', '_id prefix');
+  let bot = await Bot.findById(req.body.botId);
+
+  let dupePrefix = false;
+  // Set dupePrefix to true if another bot already has the requested prefix
+  for (let i = 0; i < user.bots.length; i++) {
+    if ((String(user.bots[i]._id) !== String(req.body.botId)) && (user.bots[i].prefix === req.body.prefix)) {
+      dupePrefix = true;
+    } 
+  }
+  // If dupPrefix is true, then another bot already has the requested prefix
+  if (dupePrefix) {
+    return res.status(418).send('Prefix is already in use for another bot you own!');
+  }
 
   bot.prefix = req.body.prefix;
 
