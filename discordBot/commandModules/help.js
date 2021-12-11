@@ -37,7 +37,6 @@ module.exports = {
       const moderationCommand = bot.moderationModules.find((module) => module.enabled && (String(module.command) === String(optionalArg)));
       const generalCommand = bot.customModules.find((module) => module.command.toLowerCase() === optionalArg.toLowerCase());
 
-
       // If a supplied optional argument matching a general command module, 
       // then reply with specific information on that command module
       if (generalCommand) {
@@ -156,7 +155,7 @@ module.exports = {
     let moderationCommandsString = '';
     // Build sorted array of moderation commands, excluding type "help"
     bot.moderationModules.forEach((module) => {
-      if (module.type !== "help") {
+      if (module.enabled && module.type !== "help") {
         moderationCommands.push(module.command.toLowerCase());
       }
     });
