@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
   avatarURL: {
     type: String,
   },
+  warningAcknowledged: {
+    type: Boolean,
+    default: false,
+  },
   bots: [{
     type: mongoose.Schema.Types.ObjectID,
     ref: 'Bot'
