@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const auth = require("../middleware/auth");
 const { User } = require("../models/user");
 const {returnAvatarUrl, returnStatus, returnRoles} = require("../discordBot/botClientUtils");
 
