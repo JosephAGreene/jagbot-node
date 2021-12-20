@@ -36,9 +36,4 @@ router.post('/acknowledge-warning', auth, async (rew, res) => {
   res.send(user);
 })
 
-router.get('/logout', function(req, res){
-  req.logout();
-  res.sendStatus(200);
-});
-
 module.exports = router;
