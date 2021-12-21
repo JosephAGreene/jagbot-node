@@ -71,6 +71,13 @@ router.post("/checkout-bot", async (req, res) => {
 router.post("/add-new-bot", async (req, res) => {
   let user = await User.findById(req.user._id).populate('bots');
 
+  // If warningAcknowledged is false, return error
+  if (!req.body.warningAcknowledged) {
+    return res.status(418).send({ error: 'warningAcknowledged', message: "Acknowledgement is required!"});
+  } else {
+    user.warningAcknowledged = true;
+  }
+
   // If prefix or token is already in use, return error
   let duplicatePrefix = false;
   let duplicateToken = false;

@@ -26,16 +26,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/acknowledge-warning', auth, async (rew, res) => {
-  let user = await User.findById(req.user._id);
-
-  user.warningAcknowledged = true;
-
-  await user.save();
-
-  res.send(user);
-})
-
 router.get('/logout', function(req, res){
   req.logout();
   res.sendStatus(200);
